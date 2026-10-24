@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Физика · Центр масс</title>
+<style>
+  :root{
+    --bg-0:#070b14; --bg-1:#0d1524;
+    --card-grad-a:#101c30; --card-grad-b:#0a1322;
+    --btn-grad-a:#111c30; --btn-grad-b:#0b1524;
+    --input-bg:#0a1220;
+    --line:#1e3a5f;
+    --cyan:#22d3ee; --cyan-dim:#22d3ee55;
+    --green:#22c55e; --green-glow:#22c55e88;
+    --yellow:#eab308; --yellow-glow:#eab30888;
+    --red:#ef4444; --red-glow:#ef444488;
+    --gold:#facc15;
+    --text:#dbe7f5; --text-strong:#eaf3ff; --text-body:#cddcef;
+    --muted:#7c93b3;
+    --formula:#8fe9ff;
+    --grid-line:rgba(34,211,238,.05);
+    --floaty-color:rgba(34,211,238,.10);
+    --body-grad-1:#10243f; --body-grad-2:#0d2a3a;
+    --check-grad-a:#0e2a3d; --check-grad-b:#0b1f30;
+    --check-color:#9fefff;
+    --shadow-card:0 20px 60px rgba(0,0,0,.5);
+    --shadow-btn:0 8px 28px rgba(34,211,238,.18);
+    --shadow-toggle:0 4px 16px rgba(0,0,0,.35);
+    --sec-line:rgba(34,211,238,.28);
+    --bonus-bg-a:rgba(34,211,238,.05);
+    --bonus-bg-b:rgba(34,211,238,.01);
+    --bonus-border:rgba(34,211,238,.18);
+    --bonus-correct-bg-a:rgba(250,204,21,.08);
+    --bonus-correct-bg-b:rgba(250,204,21,.01);
+    --bonus-correct-border:rgba(250,204,21,.55);
+    --bonus-badge-bg:rgba(250,204,21,.05);
+    --bonus-badge-border:rgba(250,204,21,.35);
+    --hint-bg:rgba(234,179,8,.06);
+    --hint-text:#f4e3a1;
+    --feedback-ok-bg:rgba(34,197,94,.10);
+    --feedback-bad-bg:rgba(239,68,68,.10);
+    --ff-bg-a:rgba(34,211,238,.08);
+    --ff-bg-b:rgba(34,211,238,.02);
+    --ff-border:rgba(34,211,238,.55);
+  }
+  body.light{
+    --bg-0:#f7f9fc; --bg-1:#eef2f8;
+    --card-grad-a:#ffffff; --card-grad-b:#f8fafc;
+    --btn-grad-a:#ffffff; --btn-grad-b:#f1f5f9;
+    --input-bg:#ffffff;
+    --line:#cbd5e1;
+    --cyan:#0891b2; --cyan-dim:#0891b255;
+    --green:#16a34a; --green-glow:#16a34a55;
+    --yellow:#ca8a04; --yellow-glow:#ca8a0455;
+    --red:#dc2626; --red-glow:#dc262655;
+    --gold:#b45309;
+    --text:#334155; --text-strong:#0f172a; --text-body:#475569;
+    --muted:#64748b;
+    --formula:#0369a1;
+    --grid-line:rgba(8,145,178,.08);
+    --floaty-color:rgba(8,145,178,.13);
+    --body-grad-1:#dbeafe; --body-grad-2:#cffafe;
+    --check-grad-a:#ecfeff; --check-grad-b:#cffafe;
+    --check-color:#0e7490;
+    --shadow-card:0 20px 60px rgba(15,23,42,.10);
+    --shadow-btn:0 8px 24px rgba(8,145,178,.15);
+    --shadow-toggle:0 4px 16px rgba(15,23,42,.15);
+    --sec-line:rgba(8,145,178,.35);
+    --bonus-bg-a:rgba(8,145,178,.06);
+    --bonus-bg-b:rgba(8,145,178,.01);
+    --bonus-border:rgba(8,145,178,.25);
+    --bonus-correct-bg-a:rgba(202,138,4,.10);
+    --bonus-correct-bg-b:rgba(202,138,4,.02);
+    --bonus-correct-border:rgba(202,138,4,.55);
+    --bonus-badge-bg:rgba(202,138,4,.08);
+    --bonus-badge-border:rgba(202,138,4,.40);
+    --hint-bg:rgba(202,138,4,.10);
+    --hint-text:#854d0e;
+    --feedback-ok-bg:rgba(22,163,74,.10);
+    --feedback-bad-bg:rgba(220,38,38,.08);
+    --ff-bg-a:rgba(8,145,178,.10);
+    --ff-bg-b:rgba(8,145,178,.02);
+    --ff-border:rgba(8,145,178,.55);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Segoe UI','Helvetica Neue',Arial,sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(circle at 15% 10%, var(--body-grad-1) 0%, transparent 45%),
+      radial-gradient(circle at 85% 90%, var(--body-grad-2) 0%, transparent 45%),
+      linear-gradient(180deg,var(--bg-0),var(--bg-1));
+    min-height:100%; position:relative; overflow-x:hidden;
+    transition: background .35s ease, color .35s ease;
+  }
+  body::before{
+    content:"";
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size:48px 48px;
+    pointer-events:none; z-index:0;
+  }
+  .theme-toggle{
+    position:fixed; top:20px; right:20px; z-index:100;
+    width:46px; height:46px; border-radius:50%;
+    border:1.5px solid var(--line);
+    background:var(--btn-grad-a); color:var(--cyan);
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:border-color .2s, box-shadow .2s, transform .2s, background .35s;
+    box-shadow:var(--shadow-toggle); padding:0;
+  }
+  .theme-toggle:hover{border-color:var(--cyan); box-shadow:0 0 22px var(--cyan-dim), var(--shadow-toggle); transform:translateY(-1px);}
+  .theme-toggle svg{width:22px; height:22px; display:block;}
+  .theme-toggle .icon-sun{display:block;}
+  .theme-toggle .icon-moon{display:none;}
+  body.light .theme-toggle .icon-sun{display:none;}
+  body.light .theme-toggle .icon-moon{display:block;}
+  .floaty{
+    position:fixed; color:var(--floaty-color);
+    font-family:'Cambria Math','Times New Roman',serif;
+    font-size:80px; pointer-events:none; user-select:none;
+    z-index:0; animation:drift 22s ease-in-out infinite;
+    transition:color .35s ease;
+  }
+  @keyframes drift{
+    0%,100%{transform:translateY(0) rotate(0deg);}
+    50%{transform:translateY(-28px) rotate(6deg);}
+  }
+  .wrap{position:relative; z-index:1; max-width:1080px; margin:0 auto; padding:90px 22px 70px;}
+  .section{margin-bottom:44px;}
+  .section-head{
+    display:flex; align-items:baseline; gap:14px;
+    margin:0 4px 20px; padding-bottom:10px;
+    border-bottom:1px solid var(--line); position:relative;
+    transition:border-color .35s;
+  }
+  .section-head::after{
+    content:""; position:absolute; left:0; bottom:-1px;
+    width:70px; height:2px;
+    background:linear-gradient(90deg,var(--cyan),transparent);
+    box-shadow:0 0 12px var(--cyan-dim);
+  }
+  .s-icon{
+    font-family:'Cambria Math','Times New Roman',serif;
+    font-size:26px; color:var(--cyan);
+    text-shadow:0 0 14px var(--cyan-dim); line-height:1;
+  }
+  .s-title{font-size:19px; font-weight:600; letter-spacing:.6px; color:var(--text-strong);}
+  .s-count{margin-left:auto; font-size:12.5px; letter-spacing:2px; text-transform:uppercase; color:var(--muted);}
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:16px;}
+  .task-btn{
+    position:relative; display:flex; align-items:center;
+    gap:16px; text-align:left; padding:20px;
+    border-radius:14px; cursor:pointer;
+    font-family:inherit; color:var(--text);
+    background:linear-gradient(160deg,var(--btn-grad-a),var(--btn-grad-b));
+    border:1.5px solid var(--line);
+    transition:.22s ease; overflow:hidden;
+  }
+  .task-btn::after{
+    content:""; position:absolute; left:0; top:0; bottom:0; width:4px;
+    background:var(--cyan); box-shadow:0 0 14px var(--cyan-dim); opacity:.85;
+  }
+  .task-btn:hover{transform:translateY(-3px); border-color:var(--cyan); box-shadow:var(--shadow-btn);}
+  .task-btn .num{font-family:'Cambria Math','Times New Roman',serif; font-size:26px; color:var(--cyan); min-width:36px; text-align:center;}
+  .task-btn .ttl{font-size:15px; line-height:1.35; color:var(--text); padding-right:36px;}
+  .task-btn .bonus-badge{
+    position:absolute; top:8px; right:10px;
+    font-family:'Segoe UI',sans-serif; font-size:12px; line-height:1;
+    color:var(--muted); opacity:.9;
+    display:inline-flex; align-items:center; gap:2px; pointer-events:none;
+  }
+  .task-btn .bonus-badge .bstar{font-size:14px; color:var(--muted); opacity:.6; transition:.2s;}
+  .task-btn .bonus-badge .bstar.on{color:var(--gold); opacity:1; text-shadow:0 0 8px rgba(250,204,21,.55);}
+  .task-btn.solved{border-color:var(--green); box-shadow:0 0 22px var(--green-glow), inset 0 0 22px rgba(34,197,94,.10);}
+  .task-btn.solved::after{background:var(--green); box-shadow:0 0 14px var(--green-glow);}
+  .task-btn.solved .num{color:var(--green);}
+  .task-btn.assisted{border-color:var(--yellow); box-shadow:0 0 22px var(--yellow-glow), inset 0 0 22px rgba(234,179,8,.10);}
+  .task-btn.assisted::after{background:var(--yellow); box-shadow:0 0 14px var(--yellow-glow);}
+  .task-btn.assisted .num{color:var(--yellow);}
+  .task-btn.all-bonus{border-color:var(--gold); box-shadow:0 0 26px rgba(250,204,21,.35), inset 0 0 22px rgba(250,204,21,.06);}
+  .task-btn.all-bonus::after{background:var(--gold); box-shadow:0 0 14px rgba(250,204,21,.6);}
+  .empty{
+    grid-column:1/-1; border:1.5px dashed var(--line);
+    border-radius:14px; padding:28px; text-align:center;
+    color:var(--muted); font-size:14.5px; line-height:1.7;
+  }
+  .hidden{display:none !important;}
+  .back-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    background:transparent; border:1.5px solid var(--line);
+    color:var(--muted); padding:9px 18px;
+    border-radius:10px; font-family:inherit;
+    font-size:14px; letter-spacing:.5px;
+    cursor:pointer; transition:.2s; margin-bottom:22px;
+  }
+  .back-btn:hover{border-color:var(--cyan); color:var(--cyan); box-shadow:0 0 14px var(--cyan-dim);}
+  .task-card{
+    background:linear-gradient(170deg,var(--card-grad-a),var(--card-grad-b));
+    border:1.5px solid var(--line);
+    border-radius:18px; padding:34px 34px 30px;
+    box-shadow:var(--shadow-card);
+    position:relative; overflow:hidden;
+    transition:background .35s ease, border-color .35s ease, box-shadow .35s ease;
+  }
+  .task-card::before{
+    content:""; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg,transparent,var(--cyan),transparent); opacity:.7;
+  }
+  .task-section{font-size:12.5px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:8px;}
+  .task-badge{
+    display:inline-block; font-size:12px; letter-spacing:2.5px; text-transform:uppercase;
+    color:var(--cyan); border:1px solid var(--cyan-dim);
+    padding:4px 12px; border-radius:20px; margin-bottom:14px;
+  }
+  .task-bonus-badge{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12px; letter-spacing:1.2px; color:var(--gold);
+    border:1px solid var(--bonus-badge-border);
+    background:var(--bonus-badge-bg);
+    padding:4px 12px; border-radius:20px;
+    margin-left:8px; margin-bottom:14px;
+  }
+  .task-bonus-badge .bstar{font-size:14px; color:var(--gold); text-shadow:0 0 8px rgba(250,204,21,.5);}
+  .task-card h2{font-size:22px; font-weight:600; color:var(--text-strong); margin-bottom:22px; line-height:1.35;}
+  .task-body{font-size:16.5px; line-height:2; color:var(--text-body);}
+  .task-body p{margin-bottom:16px;}
+  .formula{font-family:'Cambria Math','Times New Roman',serif; font-size:19px; color:var(--formula); white-space:nowrap; padding:0 2px;}
+  .formula sub{font-size:0.72em; vertical-align:-0.22em;}
+  .frac{display:inline-flex; flex-direction:column; vertical-align:middle; text-align:center; font-size:0.82em; line-height:1.05; margin:0 3px; position:relative; top:-0.05em;}
+  .frac .fnum{border-bottom:1px solid currentColor; padding:0 4px 1px;}
+  .frac .fden{padding:1px 4px 0;}
+  .task-figure{text-align:center; margin:22px 0 6px;}
+  .task-figure svg{max-width:100%; width:100%; height:auto; display:inline-block; border-radius:10px; overflow:hidden;}
+
+  body.light .task-figure svg [stroke="#8fe9ff"],
+  body.light .task-figure svg [stroke="#22d3ee"]{ stroke:#0e7490; }
+  body.light .task-figure svg [fill="#8fe9ff"],
+  body.light .task-figure svg [fill="#22d3ee"]{ fill:#0e7490; }
+  body.light .task-figure svg [fill="#dbe7f5"]{ fill:#1e293b; }
+  body.light .task-figure svg [stroke="#7c93b3"]{ stroke:#64748b; }
+
+  .answer-area{margin-top:28px; padding-top:24px; border-top:1px dashed var(--line); transition:border-color .35s;}
+  .answer-area > label{
+    display:flex; align-items:center; gap:6px;
+    font-size:13px; letter-spacing:2px; text-transform:uppercase;
+    color:var(--muted); margin-bottom:10px;
+  }
+  .answer-area > label sub{text-transform:none; letter-spacing:0;}
+  .answer-row{display:flex; gap:12px; flex-wrap:wrap;}
+  .answer-row input, .af-input, .bonus-input{
+    flex:1; min-width:200px;
+    background:var(--input-bg); border:1.5px solid var(--line);
+    border-radius:10px; padding:13px 16px;
+    color:var(--text-strong);
+    font-family:'Cambria Math','Times New Roman',serif;
+    font-size:19px; outline:none; transition:.2s;
+  }
+  .answer-row input::placeholder, .af-input::placeholder, .bonus-input::placeholder{color:var(--muted); opacity:.7;}
+  .answer-row input:focus, .af-input:focus, .bonus-input:focus{border-color:var(--cyan); box-shadow:0 0 18px var(--cyan-dim);}
+  .answer-row input:disabled, .af-input:disabled, .bonus-input:disabled{opacity:.5;}
+  .answer-field{display:flex; align-items:center; gap:14px; margin-bottom:12px;}
+  .af-label{
+    min-width:130px;
+    font-family:'Cambria Math','Times New Roman',serif;
+    font-size:18px; color:var(--formula); white-space:nowrap;
+  }
+  .af-label sub{font-size:0.72em; vertical-align:-0.22em;}
+  .field-mark{
+    min-width: 26px;
+    font-size: 22px;
+    font-weight: bold;
+    text-align: center;
+  }
+  .check-btn{
+    padding:13px 30px; border-radius:10px;
+    border:1.5px solid var(--cyan);
+    background:linear-gradient(160deg,var(--check-grad-a),var(--check-grad-b));
+    color:var(--check-color); font-family:inherit;
+    font-size:15px; letter-spacing:1px;
+    cursor:pointer; transition:.2s; white-space:nowrap; margin-top:6px;
+  }
+  .check-btn:hover{border-color:var(--cyan); box-shadow:0 0 22px var(--cyan-dim);}
+  .syntax-help{
+    margin-top:14px; font-size:13.5px; line-height:1.75;
+    color:var(--muted); background:var(--bonus-bg-a);
+    border:1px dashed var(--line); border-radius:10px; padding:14px 18px;
+    transition:background .35s ease, border-color .35s ease;
+  }
+  .syntax-help .sh-title{
+    font-size:11.5px; letter-spacing:2px; text-transform:uppercase;
+    color:var(--cyan); opacity:.85; display:block; margin-bottom:10px;
+  }
+  .fn-chip{
+    font-family:'Cambria Math','Times New Roman',serif;
+    font-size:16px; color:var(--formula);
+    background:var(--bonus-bg-a); border:1px solid var(--bonus-border);
+    border-radius:6px; padding:3px 12px 2px;
+    margin-right:6px; margin-bottom:6px;
+    display:inline-flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:.15s; font-weight:400;
+    line-height:1.3; vertical-align:middle; min-height:30px;
+  }
+  .fn-chip:hover{background:var(--bonus-bg-a); border-color:var(--cyan); box-shadow:0 0 12px var(--cyan-dim); color:var(--cyan);}
+  .fn-chip:active{transform:translateY(1px);}
+  .fn-chip svg{display:block;}
+  .feedback{margin-top:20px; font-size:16px; padding:16px 20px; border-radius:12px; line-height:1.6; display:none;}
+  .feedback.show{display:block;}
+  .feedback.ok{background:var(--feedback-ok-bg); border:1.5px solid var(--green); color:var(--green);}
+  .feedback.bad{background:var(--feedback-bad-bg); border:1.5px solid var(--red); color:var(--red);}
+
+  .choice-grid{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .choice-btn{
+    flex: 1 1 180px;
+    padding: 14px 18px;
+    background: var(--input-bg);
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    color: var(--text-body);
+    font-family: inherit;
+    font-size: 15.5px;
+    cursor: pointer;
+    transition: .2s;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .choice-btn:hover:not(:disabled){
+    border-color: var(--cyan);
+    color: var(--text-strong);
+    box-shadow: 0 0 18px var(--cyan-dim);
+    transform: translateY(-1px);
+  }
+  .choice-btn.correct{
+    border-color: var(--green);
+    background: var(--feedback-ok-bg);
+    color: var(--green);
+    box-shadow: 0 0 12px var(--green-glow);
+    font-weight: 600;
+  }
+  .choice-btn.wrong{
+    border-color: var(--red);
+    background: var(--feedback-bad-bg);
+    color: var(--red);
+    text-decoration: line-through;
+    opacity: .7;
+  }
+  .choice-btn:disabled{ cursor: default; }
+  .choice-btn:disabled:not(.correct):not(.wrong){ opacity: .45; }
+
+  .final-formula{
+    margin-top:22px; padding:22px 26px 20px;
+    border:1.5px solid var(--ff-border);
+    border-radius:14px;
+    background:linear-gradient(160deg, var(--ff-bg-a), var(--ff-bg-b));
+    box-shadow:0 0 22px var(--cyan-dim);
+    display:none; animation:fadeIn .4s ease;
+  }
+  .final-formula.show{display:block;}
+  .final-formula-label{
+    font-size:11.5px; letter-spacing:2.5px; text-transform:uppercase;
+    color:var(--cyan); opacity:.9;
+    display:flex; align-items:center; gap:10px;
+    margin-bottom:14px; font-family:'Segoe UI',sans-serif;
+  }
+  .final-formula-label::before{
+    content:"∎"; color:var(--cyan); font-size:13px;
+    text-shadow:0 0 8px var(--cyan-dim);
+  }
+  .final-formula-content{
+    font-family:'Cambria Math','Times New Roman',serif;
+    font-size:22px; color:var(--formula);
+    text-align:center; line-height:1.9;
+  }
+  .final-formula-content .ff-line{ display:block; margin:6px 0; }
+
+  @keyframes fadeIn{from{opacity:0; transform:translateY(-4px);} to{opacity:1; transform:none;}}
+  .bonus-block{margin-top:26px; padding-top:24px; border-top:1px solid var(--sec-line); display:none; animation:fadeIn .35s ease;}
+  .bonus-block.show{display:block;}
+  .bonus-header{
+    font-size:12px; letter-spacing:2.5px; text-transform:uppercase;
+    color:var(--cyan); margin-bottom:16px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .bonus-header::before{content:"★"; color:var(--gold); font-size:14px; text-shadow:0 0 10px rgba(250,204,21,.5);}
+  .bonus-q{
+    margin-bottom:20px; padding:18px 20px;
+    background:linear-gradient(160deg, var(--bonus-bg-a), var(--bonus-bg-b));
+    border:1px solid var(--bonus-border); border-radius:12px;
+    display:none; animation:fadeIn .35s ease;
+  }
+  .bonus-q.show{display:block;}
+  .bonus-q.correct{
+    border-color:var(--bonus-correct-border);
+    background:linear-gradient(160deg, var(--bonus-correct-bg-a), var(--bonus-correct-bg-b));
+    box-shadow:0 0 18px rgba(250,204,21,.15);
+  }
+  .bonus-q-title{
+    font-size:11.5px; letter-spacing:2px; text-transform:uppercase;
+    color:var(--cyan); opacity:.8; margin-bottom:8px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .bonus-q.correct .bonus-q-title{color:var(--gold); opacity:.95;}
+  .bonus-q.correct .bonus-q-title::before{content:"★"; font-size:13px; color:var(--gold); text-shadow:0 0 8px rgba(250,204,21,.6);}
+  .bonus-q-text{font-size:15.5px; line-height:1.7; color:var(--text-body); margin-bottom:14px;}
+  .hint-block{
+    margin-top:16px; padding:18px 22px 16px;
+    border-left:3px solid var(--yellow); background:var(--hint-bg);
+    border-radius:0 12px 12px 0;
+    font-size:15.5px; line-height:2; color:var(--hint-text);
+    display:none; transition:background .35s ease, color .35s ease;
+  }
+  .hint-block.show{display:block;}
+  .hint-label{font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--yellow); display:block; margin-bottom:8px; opacity:.85;}
+  @media(max-width:600px){
+    .wrap{padding:80px 14px 60px;}
+    .task-card{padding:24px 20px;}
+    .task-body{font-size:15.5px;}
+    .floaty{display:none;}
+    .answer-field{flex-direction:column; align-items:flex-start;}
+    .af-label{min-width:0;}
+    .theme-toggle{top:12px; right:12px; width:40px; height:40px;}
+    .final-formula-content{font-size:19px;}
+    .choice-btn{flex: 1 1 100%;}
+  }
+</style>
+</head>
+<body>
+
+<script>
+  try{
+    if(localStorage.getItem('phys-theme') === 'light'){
+      document.body.classList.add('light');
+    }
+  }catch(e){}
+</script>
+
+<button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Переключить тему">
+  <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="4"/>
+    <line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/>
+    <line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/>
+    <line x1="4.9" y1="4.9" x2="6.6" y2="6.6"/><line x1="17.4" y1="17.4" x2="19.1" y2="19.1"/>
+    <line x1="4.9" y1="19.1" x2="6.6" y2="17.4"/><line x1="17.4" y1="6.6" x2="19.1" y2="4.9"/>
+  </svg>
+  <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+  </svg>
+</button>
+
+<div class="floaty" style="top:12%;left:4%;">m</div>
+<div class="floaty" style="top:70%;left:88%;font-size:100px;animation-delay:-6s;">r</div>
+<div class="floaty" style="top:38%;left:92%;animation-delay:-11s;">Σ</div>
+<div class="floaty" style="top:80%;left:8%;font-size:70px;animation-delay:-3s;">CM</div>
+<div class="floaty" style="top:20%;left:78%;font-size:60px;animation-delay:-14s;">x</div>
+
+<div class="wrap">
+  <section id="home-view"><div id="sections-container"></div></section>
+  <section id="task-view" class="hidden">
+    <button class="back-btn" onclick="goHome()">← К списку задач</button>
+    <div class="task-card" id="task-card"></div>
+  </section>
+</div>
+
+<script>
+function toggleTheme(){
+  var isLight = document.body.classList.toggle('light');
+  try{ localStorage.setItem('phys-theme', isLight ? 'light' : 'dark'); }catch(e){}
+}
+
+var F_MS  = '<span class="frac"><span class="fnum">м</span><span class="fden">с</span></span>';
+var F_MSS = '<span class="frac"><span class="fnum">м</span><span class="fden">с²</span></span>';
+var F_KG  = 'кг';
+var F_M   = 'м';
+
+var sections = [
+  {
+    id: 'center-of-mass',
+    title: 'Центр масс',
+    icon: 'r<sub>c</sub>',
+    tasks: [
+      {
+        id: 1,
+        title: 'Составной стержень (МФТИ, 1984)',
+        unit: ' (отношение длин)',
+        body:
+          '<p>Составной стержень представляет собой два соосных цилиндра, ' +
+          'прижатых друг к другу торцами. Оказалось, что центр масс такого ' +
+          'стержня находится в стыковочном сечении. Цилиндры изготовлены из ' +
+          'одинакового материала, но площадь сечения одного цилиндра в три ' +
+          'раза больше площади сечения другого.</p>' +
+          '<p>Определить отношение длин цилиндров. Ответ дайте числом ' +
+          '(большая длина к меньшей).</p>',
+        answer: [
+          { value: 1.73, tol: 0.02 },
+          '1.73', '1,73', 'sqrt(3)', '√3'
+        ],
+        finalFormula:
+          '<span class="ff-line">' +
+            '<span class="frac"><span class="fnum">L<sub>1</sub></span><span class="fden">L<sub>2</sub></span></span>' +
+            ' = √(S<sub>2</sub> / S<sub>1</sub>) = √3 ≈ 1,73' +
+          '</span>',
+        hints: [
+          'Масса каждого цилиндра пропорциональна его объему, то есть произведению площади сечения на длину.',
+          'Поскольку центр масс находится на стыке, моменты масс левой и правой частей относительно стыка должны быть равны.'
+        ],
+        bonus: [
+          {
+            q: 'Чему равно отношение масс большего и меньшего цилиндров?',
+            answer: [{ value: 1.73, tol: 0.02 }, '1.73', '1,73', 'sqrt(3)', '√3']
+          },
+          {
+            q: 'Если бы площади отличались в 4 раза, каким было бы отношение длин?',
+            answer: [{ value: 2, tol: 0.02 }, '2', '2.0', '2,0']
+          }
+        ]
+      },
+      {
+        id: 2,
+        title: 'Три тела на прямой (Задача 1)',
+        unit: ' (в долях \u2113)',
+        body:
+          '<p>Три небольших тела массами <span class="formula">m</span>, ' +
+          '<span class="formula">3m</span> и <span class="formula">4m</span> ' +
+          'расположены последовательно на одной прямой в точках ' +
+          '<span class="formula">A<sub>1</sub></span>, ' +
+          '<span class="formula">A<sub>2</sub></span> и ' +
+          '<span class="formula">A<sub>3</sub></span>. Известно, что ' +
+          '<span class="formula">A<sub>1</sub>A<sub>2</sub> = \u2113</span> и ' +
+          '<span class="formula">A<sub>2</sub>A<sub>3</sub> = 2\u2113</span>.</p>' +
+          '<p>1) Найдите положение центра масс этой системы (исходя из ' +
+          'определения). Ответ дайте в долях \u2113 от точки A<sub>1</sub>.</p>' +
+          '<p>2) Убедитесь, что ответ получается тот же, если искать его ' +
+          'как центр масс тела <span class="formula">m</span> и тела ' +
+          '<span class="formula">7m</span>, расположенного в центре масс ' +
+          'системы тел <span class="formula">3m</span> и ' +
+          '<span class="formula">4m</span>.</p>',
+        answer: [
+          { value: 1.875, tol: 0.01 },
+          '1.875', '1,875', '15/8'
+        ],
+        finalFormula:
+          '<span class="ff-line">x<sub>c</sub> = ' +
+            '<span class="frac"><span class="fnum">15</span><span class="fden">8</span></span>' +
+            '\u2113 = 1,875\u2113' +
+          '</span>',
+        hints: [
+          'Используйте формулу центра масс для системы материальных точек.',
+          'Для проверки представьте две правые массы как единое тело с массой 7m, находящееся в их центре масс.'
+        ],
+        bonus: [
+          {
+            q: 'Чему равно расстояние от центра масс до точки A2 (в долях \u2113)?',
+            answer: [{ value: 0.875, tol: 0.02 }, '0.875', '0,875', '7/8']
+          },
+          {
+            q: 'Если массу m в точке A1 увеличить вдвое, как изменится положение центра масс? (Укажите новую координату в долях \u2113).',
+            answer: [{ value: 1.667, tol: 0.02 }, '1.667', '1,667', '5/3']
+          }
+        ]
+      },
+      {
+        id: 3,
+        title: 'Шар с полостью (Физтех, 2012)',
+        unit: ' (в см)',
+        body:
+          '<p>Внутри однородного шара радиусом ' +
+          '<span class="formula">R = 39 см</span> находится сферическая ' +
+          'полость радиусом <span class="formula">r = 13 см</span>, ' +
+          'касающаяся поверхности шара.</p>' +
+          '<p>На каком расстоянии от центра шара находится центр масс ' +
+          'шара с полостью? Ответ выразите в см.</p>',
+        answer: [
+          { value: 1, tol: 0.02 },
+          '1', '1.0', '1,0'
+        ],
+        finalFormula:
+          '<span class="ff-line">x = ' +
+            '<span class="frac"><span class="fnum">R - r</span><span class="fden">(R/r)³ - 1</span></span>' +
+            ' = 1 см</span>',
+        hints: [
+          'Используйте метод отрицательных масс: представьте, что полость заполнена веществом с отрицательной плотностью.',
+          'Центр масс сплошного шара находится в его геометрическом центре.'
+        ],
+        bonus: [
+          {
+            q: 'Чему равна масса вырезанной части по отношению к массе целого шара? (Ответ дайте десятичной дробью).',
+            answer: [{ value: 0.037, tol: 0.01 }, '0.037', '0,037', '1/27']
+          },
+          {
+            q: 'Как изменится ответ, если полость будет иметь радиус R/2 (в см)?',
+            answer: [{ value: 2.79, tol: 0.02 }, '2.79', '2,79', '39/14']
+          }
+        ]
+      },
+      {
+        id: 4,
+        title: 'Треугольная рамка (Всеросс., 2014)',
+        unit: ' (в долях L)',
+        body:
+          '<p>Две стороны проволочной рамки, имеющей форму равностороннего ' +
+          'треугольника, сделаны из алюминиевой проволоки, а третья — из ' +
+          'медной вдвое большего диаметра. Плотность меди считайте в три ' +
+          'раза большей плотности алюминия.</p>' +
+          '<p>Определите, на каком расстоянии от середины медной проволоки ' +
+          'находится центр тяжести системы, если сторона треугольника ' +
+          'равна <span class="formula">L</span>. Ответ дайте в виде ' +
+          'коэффициента перед L.</p>',
+        answer: [
+          { value: 0.062, tol: 0.01 },
+          '0.062', '0,062', 'sqrt(3)/28', '√3/28'
+        ],
+        finalFormula:
+          '<span class="ff-line">x = ' +
+            '<span class="frac"><span class="fnum">√3</span><span class="fden">28</span></span>' +
+            '·L ≈ 0,062·L</span>',
+        hints: [
+          'Найдите массы сторон, учитывая, что масса пропорциональна плотности, площади сечения и длине.',
+          'Медь имеет в 2 раза больший диаметр (и в 4 раза большую площадь) и в 3 раза большую плотность, значит, она в 12 раз тяжелее алюминиевой стороны.'
+        ],
+        bonus: [
+          {
+            q: 'Каково отношение массы медной стороны к массе одной алюминиевой?',
+            answer: [{ value: 12, tol: 0.02 }, '12', '12.0', '12,0']
+          },
+          {
+            q: 'Где находился бы центр масс, если бы все стороны были из алюминия? (Ответ дайте в виде числа, обозначающего расстояние от середины стороны в долях высоты треугольника, где высота = 1).',
+            answer: [{ value: 0.333, tol: 0.02 }, '0.333', '0,333', '1/3']
+          }
+        ]
+      },
+      {
+        id: 5,
+        title: 'Стержень на гладкой поверхности (Задача 1)',
+        unit: ' (выберите вариант)',
+        choices: [
+          { text: 'Вертикальная прямая', correct: true },
+          { text: 'Парабола', correct: false },
+          { text: 'Горизонтальная прямая', correct: false },
+          { text: 'Окружность', correct: false }
+        ],
+        body:
+          '<p>Однородный стержень поставлен вертикально на гладкую ' +
+          'горизонтальную поверхность и начинает движение из состояния покоя.</p>' +
+          '<p>По какой траектории будет двигаться центр масс стержня? ' +
+          'Выберите правильный вариант.</p>',
+        finalFormula:
+          '<span class="ff-line">x<sub>c</sub> = const, \text{траектория — вертикальная прямая}</span>',
+        hints: [
+          'В горизонтальном направлении на стержень не действуют никакие внешние силы.',
+          'Как движется центр масс системы, если сумма внешних сил равна нулю?'
+        ],
+        bonus: [
+          {
+            q: 'Сохраняется ли горизонтальная проекция импульса системы?',
+            choices: [
+              { text: 'Да', correct: true },
+              { text: 'Нет', correct: false }
+            ]
+          },
+          {
+            q: 'Изменится ли ответ, если поверхность будет не гладкой, а с трением?',
+            choices: [
+              { text: 'Изменится', correct: true },
+              { text: 'Не изменится', correct: false }
+            ]
+          }
+        ]
+      },
+      {
+        id: 6,
+        title: 'Двойная звезда (Задача 2)',
+        unit: ' (в а.е.)',
+        body:
+          '<p>Двойная звезда состоит из двух звёзд-компонентов массами ' +
+          '<span class="formula">m<sub>1</sub></span> и ' +
+          '<span class="formula">m<sub>2</sub></span>, расстояние между ' +
+          'которыми постоянно и равно <span class="formula">L</span>. ' +
+          'Найдите период вращения двойной звезды.</p>' +
+          '<p>Введите численный ответ для случая: ' +
+          '<span class="formula">m<sub>1</sub> = 2·10<sup>30</sup> кг</span>, ' +
+          '<span class="formula">m<sub>2</sub> = 3·10<sup>30</sup> кг</span>, ' +
+          '<span class="formula">L = 10 а.е.</span> ' +
+          'Ответ дайте в а.е. (расстояние от первой звезды до центра масс).</p>',
+        answer: [
+          { value: 6, tol: 0.02 },
+          '6', '6.0', '6,0'
+        ],
+        finalFormula:
+          '<span class="ff-line">r<sub>1</sub> = ' +
+            '<span class="frac"><span class="fnum">m<sub>2</sub></span><span class="fden">m<sub>1</sub>+m<sub>2</sub></span></span>' +
+            '·L = ' +
+            '<span class="frac"><span class="fnum">3</span><span class="fden">5</span></span>' +
+            '·10 = 6 \text{ а.е.}</span>',
+        hints: [
+          'Центр масс двойной звезды находится в точке, вокруг которой обе звезды обращаются с одинаковым периодом.',
+          'Используйте определение центра масс для двух тел.'
+        ],
+        bonus: [
+          {
+            q: 'Чему равно отношение скоростей звезд v1/v2?',
+            answer: [{ value: 1.5, tol: 0.02 }, '1.5', '1,5', '3/2']
+          },
+          {
+            q: 'Во сколько раз изменится период обращения, если расстояние L увеличить вдвое? (Ответ дайте числом, во сколько раз, с точностью до сотых).',
+            answer: [{ value: 2.83, tol: 0.02 }, '2.83', '2,83', '2*sqrt(2)']
+          }
+        ]
+      },
+      {
+        id: 7,
+        title: 'Доска на льду (Курчатов, 2014)',
+        unit: ' (в см)',
+        body:
+          '<p>На гладком льду лежит однородная доска длиной ' +
+          '<span class="formula">l = 2 м</span>. К одному из концов доски ' +
+          'привязали верёвку и стали медленно тянуть её вверх. Когда угол ' +
+          'между доской и поверхностью льда стал равен ' +
+          '<span class="formula">60°</span>, вертикально натянутая верёвка ' +
+          'оборвалась.</p>' +
+          '<p>На какое расстояние сместится при падении доски её нижний ' +
+          'конец? Ответ дайте в см.</p>',
+        answer: [
+          { value: 50, tol: 0.02 },
+          '50', '50.0', '50,0'
+        ],
+        finalFormula:
+          '<span class="ff-line">\Delta x = ' +
+            '<span class="frac"><span class="fnum">L</span><span class="fden">2</span></span>' +
+            ' (1 - \cos 60^\circ) = ' +
+            '<span class="frac"><span class="fnum">L</span><span class="fden">4</span></span>' +
+            ' = 50 см</span>',
+        hints: [
+          'В горизонтальном направлении на доску не действуют внешние силы, поэтому горизонтальная координата центра масс сохраняется.',
+          'Найдите, где находится центр масс доски в начальный момент и в момент отрыва.'
+        ],
+        bonus: [
+          {
+            q: 'На какое расстояние сместится верхний конец доски к моменту удара о лёд? (в см)',
+            answer: [{ value: 50, tol: 0.02 }, '50', '50.0', '50,0']
+          },
+          {
+            q: 'Что произойдет, если поверхность будет с трением? (Ответьте "смещение будет меньше", "смещение будет больше" или "не изменится")',
+            answer: ['смещение будет меньше']
+          }
+        ]
+      },
+      {
+        id: 8,
+        title: 'Прыжок человека (Всеросс., 1995)',
+        unit: ' (в Н)',
+        body:
+          '<p>Сидевший на корточках человек резко выпрямляется и, оттолкнувшись ' +
+          'от пола, подпрыгивает так, что его центр масс поднимается на ' +
+          'высоту <span class="formula">h</span>, равную ' +
+          '<span class="formula">3/4</span> его роста ' +
+          '<span class="formula">l</span> (высота отсчитывается от пола).</p>' +
+          '<p>Найдите среднюю силу, с которой человек действует на пол ' +
+          'во время отталкивания. Центр масс человека, когда он стоит ' +
+          'выпрямившись, находится на высоте <span class="formula">l/2</span> ' +
+          'от пола. Перед прыжком центр масс человека находился на высоте ' +
+          '<span class="formula">l/4</span> от пола. Масса человека ' +
+          '<span class="formula">m = 75 кг</span>. Ускорение свободного ' +
+          'падения <span class="formula">g = 10 ' + F_MSS + '</span>.</p>',
+        answer: [
+          { value: 1500, tol: 0.02 },
+          '1500', '1500.0', '1500,0'
+        ],
+        finalFormula:
+          '<span class="ff-line">N = 2mg = 2 · 75 · 10 = 1500 \text{ Н}</span>',
+        hints: [
+          'Работа мышц идет на изменение механической энергии центра масс человека.',
+          'Смещение центра масс во время отталкивания равно l/2 - l/4 = l/4, а полная высота подъема — h - l/4 = l/2.'
+        ],
+        bonus: [
+          {
+            q: 'Чему равна средняя сила, если человек прыгает на Луне (g = 1.6 м/с²)? Ответ дайте в Ньютонах.',
+            answer: [{ value: 240, tol: 0.02 }, '240', '240.0', '240,0']
+          },
+          {
+            q: 'Какую работу совершает человек при прыжке, если его рост l = 2 м? Ответ дайте в Джоулях (g = 10).',
+            answer: [{ value: 750, tol: 0.02 }, '750', '750.0', '750,0']
+          }
+        ]
+      },
+      {
+        id: 9,
+        title: 'Разрыв снаряда (Задача 5)',
+        unit: ' (в долях L)',
+        body:
+          '<p>Дальность полёта снаряда, вылетающего из закреплённой пушки ' +
+          'под углом к горизонту, равна <span class="formula">L</span>. ' +
+          'В верхней точке траектории снаряд разорвался на два осколка ' +
+          'равной массы, один из которых попал в пушку.</p>' +
+          '<p>На каком расстоянии от пушки приземлился второй осколок? ' +
+          'Ответ дайте в долях L.</p>',
+        answer: [
+          { value: 2, tol: 0.02 },
+          '2', '2.0', '2,0'
+        ],
+        finalFormula:
+          '<span class="ff-line">x = 2L</span>',
+        hints: [
+          'Центр масс снаряда до взрыва и после него движется одинаково (по параболе).',
+          'В момент взрыва суммарный импульс осколков равен импульсу снаряда до взрыва.'
+        ],
+        bonus: [
+          {
+            q: 'Куда бы упал снаряд, если бы не взорвался? (Ответ дайте в долях L).',
+            answer: [{ value: 1, tol: 0.02 }, '1', '1.0', '1,0']
+          },
+          {
+            q: 'Во сколько раз скорость второго осколка в момент взрыва больше скорости снаряда до взрыва?',
+            answer: [{ value: 2, tol: 0.02 }, '2', '2.0', '2,0']
+          }
+        ]
+      }
+    ]
+  }
+];
+
+var STORAGE_KEY = 'phys-olymp-com-v1';
+var progress = {};
+try{
+  var raw = localStorage.getItem(STORAGE_KEY);
+  if(raw){ progress = JSON.parse(raw) || {}; }
+}catch(e){ progress = {}; }
+
+function saveProgress(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); }catch(e){} }
+
+function ensureState(t){
+  if(!progress[t.id]){ progress[t.id] = { attempts: 0, status: null, bonus: [], fieldCorrect: [] }; }
+  var st = progress[t.id];
+  if(!st.bonus){ st.bonus = []; }
+  if(!st.fieldCorrect){ st.fieldCorrect = []; }
+  if(st.status === 'failed'){ st.status = null; }
+  var need = (t.bonus && t.bonus.length) ? t.bonus.length : 0;
+  while(st.bonus.length < need){ st.bonus.push({ attempts: 0, status: null }); }
+  for(var i = 0; i < st.bonus.length; i++){
+    if(st.bonus[i] && st.bonus[i].status === 'failed'){ st.bonus[i].status = null; }
+  }
+  if(t.answerFields){
+    while(st.fieldCorrect.length < t.answerFields.length){ st.fieldCorrect.push(false); }
+  }
+  return st;
+}
+
+function bonusStats(t){
+  var total = (t.bonus && t.bonus.length) ? t.bonus.length : 0;
+  if(!total) return { total: 0, correct: 0, allDone: false };
+  var st = progress[t.id] || {};
+  var arr = st.bonus || [];
+  var correct = 0;
+  for(var i = 0; i < total; i++){ if(arr[i] && arr[i].status === 'correct') correct++; }
+  return { total: total, correct: correct, allDone: (correct === total) };
+}
+
+function bonusPhrase(n){
+  var lastTwo = n % 100, lastOne = n % 10, adj, noun;
+  if(lastTwo >= 11 && lastTwo <= 14){ adj='дополнительных'; noun='вопросов'; }
+  else if(lastOne === 1){ adj='дополнительный'; noun='вопрос'; }
+  else if(lastOne >= 2 && lastOne <= 4){ adj='дополнительных'; noun='вопроса'; }
+  else { adj='дополнительных'; noun='вопросов'; }
+  return n + ' ' + adj + ' ' + noun;
+}
+
+function normalize(s){
+  if(s === null || s === undefined) return '';
+  s = String(s);
+  s = s.replace(/\s+/g, '');
+  s = s.toLowerCase();
+  s = s.replace(/⁄/g, '/');
+  s = s.replace(/√/g, 'sqrt');
+  s = s.replace(/²/g, '^2'); s = s.replace(/³/g, '^3');
+  s = s.replace(/₁/g, '1'); s = s.replace(/₂/g, '2'); s = s.replace(/₀/g, '0');
+  s = s.replace(/°/g, '');
+  s = s.replace(/·/g, '*'); s = s.replace(/×/g, '*');
+  s = s.replace(/−/g, '-'); s = s.replace(/–/g, '-'); s = s.replace(/—/g, '-');
+  s = s.replace(/,/g, '.');
+  s = s.replace(/\{/g, '('); s = s.replace(/\}/g, ')');
+  s = s.replace(/\*/g, '');
+  s = s.replace(/\s+/g, '');
+  return s;
+}
+function parseNumeric(s){
+  if(s === null || s === undefined) return null;
+  var t = String(s).trim().replace(/,/g, '.').replace(/[^\d.eE+\-]/g, '');
+  if(t === '') return null;
+  var n = parseFloat(t);
+  if(isNaN(n) || !isFinite(n)) return null;
+  return n;
+}
+function isCorrect(userVal, answerField){
+  var answers = Array.isArray(answerField) ? answerField : [answerField];
+  var nv = normalize(userVal);
+  var userNum = parseNumeric(userVal);
+  for(var i = 0; i < answers.length; i++){
+    var a = answers[i];
+    if(a && typeof a === 'object' && typeof a.value === 'number'){
+      if(userNum !== null){
+        var tol = (typeof a.tol === 'number') ? a.tol : 0;
+        if(Math.abs(userNum - a.value) <= tol * Math.abs(a.value)) return true;
+      }
+    } else {
+      if(normalize(a) === nv) return true;
+    }
+  }
+  return false;
+}
+
+function renderHome(){
+  var container = document.getElementById('sections-container');
+  if(!container) return;
+  container.innerHTML = '';
+  for(var s = 0; s < sections.length; s++){
+    var sec = sections[s];
+    var block = document.createElement('div');
+    block.className = 'section';
+    var solvedCount = 0;
+    for(var k = 0; k < sec.tasks.length; k++){
+      var st0 = progress[sec.tasks[k].id];
+      if(st0 && (st0.status === 'solved' || st0.status === 'assisted')) solvedCount++;
+    }
+    var total = sec.tasks.length;
+    var counterHTML = total > 0
+      ? (solvedCount + ' / ' + total)
+      : '';
+    block.innerHTML =
+      '<div class="section-head">' +
+        '<span class="s-icon">' + (sec.icon || 'Φ') + '</span>' +
+        '<span class="s-title">' + sec.title + '</span>' +
+        '<span class="s-count">' + counterHTML + '</span>' +
+      '</div>' +
+      '<div class="grid"></div>';
+    container.appendChild(block);
+    var grid = block.querySelector('.grid');
+    if(sec.tasks.length === 0){
+      var emptyDiv = document.createElement('div');
+      emptyDiv.className = 'empty';
+      emptyDiv.innerHTML = 'Задачи этого раздела скоро появятся.';
+      grid.appendChild(emptyDiv);
+    } else {
+      for(var i = 0; i < sec.tasks.length; i++){
+        (function(secId, task){
+          var st = progress[task.id];
+          var statusClass = (st && st.status) ? (' ' + st.status) : '';
+          var bs = bonusStats(task);
+          if(bs.total > 0 && bs.allDone){ statusClass += ' all-bonus'; }
+          var badgeHTML = '';
+          if(bs.total > 0){
+            var starsHTML = '';
+            for(var q = 0; q < bs.total; q++){
+              var on = q < bs.correct ? ' on' : '';
+              starsHTML += '<span class="bstar' + on + '">★</span>';
+            }
+            badgeHTML = '<span class="bonus-badge">' + starsHTML + '</span>';
+          }
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'task-btn' + statusClass;
+          btn.innerHTML =
+            '<span class="num">' + task.id + '</span>' +
+            '<span class="ttl">' + task.title + '</span>' + badgeHTML;
+          btn.onclick = function(){ openTask(secId, task.id); };
+          grid.appendChild(btn);
+        })(sec.id, sec.tasks[i]);
+      }
+    }
+  }
+}
+
+function findSection(sectionId){
+  for(var i = 0; i < sections.length; i++){ if(sections[i].id === sectionId) return sections[i]; }
+  return null;
+}
+function findTask(sec, taskId){
+  if(!sec) return null;
+  for(var i = 0; i < sec.tasks.length; i++){ if(sec.tasks[i].id === taskId) return sec.tasks[i]; }
+  return null;
+}
+
+function buildAnswerArea(t){
+  if(t.choices){
+    var html = '<label>Выберите правильный вариант</label>';
+    html += '<div class="choice-grid" id="main-choice-grid">';
+    for(var i = 0; i < t.choices.length; i++){
+      html += '<button type="button" class="choice-btn" data-idx="' + i + '" ' +
+              'onclick="handleChoiceClick(' + i + ')">' + t.choices[i].text + '</button>';
+    }
+    html += '</div>';
+    return html;
+  }
+  if(t.answerFields){
+    var html = '<label>Введите ответы</label>';
+    for(var i = 0; i < t.answerFields.length; i++){
+      var f = t.answerFields[i];
+      html += '<div class="answer-field">' +
+                '<span class="af-label">' + f.label + '</span>' +
+                '<input type="text" class="af-input" id="answer-input-' + i + '" ' +
+                  'placeholder="Введите число…" autocomplete="off">' +
+                '<span class="field-mark" id="field-mark-' + i + '"></span>' +
+              '</div>';
+    }
+    html += '<button type="button" class="check-btn" id="check-btn" onclick="handleCheck()">Проверить</button>';
+    return html;
+  }
+  var unitLabel = t.unit ? ('Ваш ответ' + t.unit) : 'Ваш ответ';
+  return '<label>' + unitLabel + '</label>' +
+    '<div class="answer-row">' +
+      '<input type="text" id="answer-input" placeholder="Введите число…" autocomplete="off">' +
+      '<button type="button" class="check-btn" id="check-btn" onclick="handleCheck()">Проверить</button>' +
+    '</div>';
+}
+
+function buildFinalFormulaBlock(t){
+  if(!t.finalFormula) return '';
+  return '<div class="final-formula" id="final-formula">' +
+           '<div class="final-formula-label">Итоговая формула</div>' +
+           '<div class="final-formula-content">' + t.finalFormula + '</div>' +
+         '</div>';
+}
+
+function buildBonusBlock(t){
+  if(!t.bonus || !t.bonus.length) return '';
+  var html = '<div class="bonus-block" id="bonus-block">' +
+              '<div class="bonus-header">Дополнительные вопросы</div>';
+  for(var i = 0; i < t.bonus.length; i++){
+    var bq = t.bonus[i];
+    html +=
+      '<div class="bonus-q" id="bonus-q-' + i + '">' +
+        '<div class="bonus-q-title">Вопрос ' + (i+1) + ' из ' + t.bonus.length + '</div>' +
+        '<div class="bonus-q-text">' + bq.q + '</div>';
+    if(bq.choices){
+      html += '<div class="choice-grid">';
+      for(var j = 0; j < bq.choices.length; j++){
+        html += '<button type="button" class="choice-btn" data-bonus="' + i + '" data-idx="' + j + '" ' +
+                'onclick="handleBonusChoiceClick(' + i + ', ' + j + ')">' + bq.choices[j].text + '</button>';
+      }
+      html += '</div>';
+    } else {
+      html += '<div class="answer-row">' +
+                '<input type="text" class="bonus-input" id="bonus-input-' + i + '" placeholder="Введите ответ…" autocomplete="off">' +
+                '<button type="button" class="check-btn" id="bonus-btn-' + i + '" onclick="checkBonus(' + i + ')">Проверить</button>' +
+              '</div>';
+    }
+    html += '<div class="feedback" id="bonus-fb-' + i + '"></div>';
+    html += '</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+var SQRT_SVG =
+  '<svg width="42" height="22" viewBox="0 0 42 22" style="display:block;overflow:visible;">' +
+    '<path d="M 2 12 L 5.5 15.5 L 10 3.5 L 40 3.5" fill="none" stroke="currentColor" ' +
+      'stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<text x="21" y="19" fill="currentColor" font-family="Cambria Math, Times New Roman, serif" ' +
+      'font-size="14" font-style="italic" text-anchor="middle">x</text>' +
+  '</svg>';
+
+var SYNTAX_HELP_HTML =
+  '<div class="syntax-help">' +
+    '<span class="sh-title">Нажмите на символ, чтобы вставить его в поле ответа</span>' +
+    '<button type="button" class="fn-chip" title="корень" onclick="insertToken(\'sqrt()\', 5, 5)">' + SQRT_SVG + '</button>' +
+    '<button type="button" class="fn-chip" title="модуль" onclick="insertToken(\'abs()\', 4, 4)">|x|</button>' +
+    '<button type="button" class="fn-chip" title="синус" onclick="insertToken(\'sin()\', 4, 4)">sin</button>' +
+    '<button type="button" class="fn-chip" title="косинус" onclick="insertToken(\'cos()\', 4, 4)">cos</button>' +
+    '<button type="button" class="fn-chip" title="тангенс" onclick="insertToken(\'tan()\', 4, 4)">tan</button>' +
+    '<button type="button" class="fn-chip" title="квадрат" onclick="insertToken(\'x^2\', 0, 1)">x²</button>' +
+    '<button type="button" class="fn-chip" title="число π" onclick="insertToken(\'pi\', 2, 2)">π</button>' +
+  '</div>';
+
+function openTask(sectionId, taskId){
+  var sec = findSection(sectionId);
+  var t = findTask(sec, taskId);
+  if(!sec || !t) return;
+  var state = ensureState(t);
+  saveProgress();
+
+  var bonusBadgeHTML = '';
+  if(t.bonus && t.bonus.length){
+    bonusBadgeHTML = '<span class="task-bonus-badge">' +
+      '<span class="bstar">★</span>' + bonusPhrase(t.bonus.length) + '</span>';
+  }
+
+  var answerAreaHTML = buildAnswerArea(t);
+  if(!t.choices){
+    answerAreaHTML += SYNTAX_HELP_HTML;
+  }
+
+  var card = document.getElementById('task-card');
+  card.innerHTML =
+    '<div class="task-section">' + sec.title + '</div>' +
+    '<span class="task-badge">Задача №' + t.id + '</span>' +
+    bonusBadgeHTML +
+    '<h2>' + t.title + '</h2>' +
+    '<div class="task-body">' + t.body + '</div>' +
+    '<div class="answer-area">' + answerAreaHTML + '</div>' +
+    '<div class="feedback" id="feedback"></div>' +
+    buildFinalFormulaBlock(t) +
+    buildBonusBlock(t) +
+    '<div class="hint-block" id="hint-1"><span class="hint-label">Подсказка 1</span><span id="hint-1-text"></span></div>' +
+    '<div class="hint-block" id="hint-2"><span class="hint-label">Подсказка 2</span><span id="hint-2-text"></span></div>';
+
+  window._currentTaskId = t.id;
+  window._currentSectionId = sec.id;
+
+  var allInputs = card.querySelectorAll('.af-input, #answer-input, .bonus-input');
+  for(var k = 0; k < allInputs.length; k++){
+    allInputs[k].addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        if(this.classList.contains('bonus-input')){
+          checkBonus(parseInt(this.id.replace('bonus-input-', ''), 10));
+        } else {
+          handleCheck();
+        }
+      }
+    });
+  }
+
+  if(state.status){ showFinal(state, t); }
+  updateBonusUI(state, t);
+
+  document.getElementById('home-view').className = 'hidden';
+  document.getElementById('task-view').className = '';
+  window.scrollTo(0, 0);
+}
+
+function getActiveInput(){
+  var a = document.activeElement;
+  if(a && (a.id === 'answer-input'
+        || (a.classList && a.classList.contains('af-input'))
+        || (a.classList && a.classList.contains('bonus-input')))){
+    if(!a.disabled) return a;
+  }
+  var single = document.getElementById('answer-input');
+  if(single && !single.disabled) return single;
+  var inputs = document.querySelectorAll('.af-input, .bonus-input');
+  for(var i = 0; i < inputs.length; i++){
+    if(!inputs[i].disabled) return inputs[i];
+  }
+  return null;
+}
+
+function insertToken(text, selStart, selEnd){
+  var inp = getActiveInput();
+  if(!inp || inp.disabled) return;
+  var s = (typeof inp.selectionStart === 'number') ? inp.selectionStart : inp.value.length;
+  var e = (typeof inp.selectionEnd   === 'number') ? inp.selectionEnd   : inp.value.length;
+  var v = inp.value;
+  inp.value = v.slice(0, s) + text + v.slice(e);
+  var a = s + ((selStart !== undefined && selStart !== null) ? selStart : text.length);
+  var b = s + ((selEnd   !== undefined && selEnd   !== null) ? selEnd   :
+              ((selStart !== undefined && selStart !== null) ? selStart : text.length));
+  inp.focus();
+  try{ inp.setSelectionRange(a, b); }catch(err){}
+}
+
+function disableAllInputs(){
+  var inputs = document.querySelectorAll('.af-input, #answer-input');
+  for(var i = 0; i < inputs.length; i++){ inputs[i].disabled = true; }
+  var btn = document.getElementById('check-btn');
+  if(btn){ btn.disabled = true; btn.style.opacity = .5; btn.style.cursor = 'default'; }
+}
+
+function revealFinalFormula(){
+  var ff = document.getElementById('final-formula');
+  if(ff) ff.classList.add('show');
+}
+
+function showFinal(state, t){
+  disableAllInputs();
+  var fb = document.getElementById('feedback');
+  if(state.status === 'solved'){
+    fb.className = 'feedback show ok';
+    fb.innerHTML = '✓ Задача решена с первой попытки.';
+  } else if(state.status === 'assisted'){
+    fb.className = 'feedback show ok';
+    fb.innerHTML = '✓ Задача решена с подсказкой.';
+  }
+  revealFinalFormula();
+  if(t.hints && t.hints[0]){
+    document.getElementById('hint-1-text').innerHTML = t.hints[0];
+    document.getElementById('hint-1').className = 'hint-block show';
+  }
+  if(t.hints && t.hints[1]){
+    document.getElementById('hint-2-text').innerHTML = t.hints[1];
+    document.getElementById('hint-2').className = 'hint-block show';
+  }
+  if(t.choices){
+    var btns = document.querySelectorAll('#main-choice-grid .choice-btn');
+    for(var i = 0; i < btns.length; i++){
+      btns[i].disabled = true;
+      if(t.choices[i].correct) btns[i].classList.add('correct');
+    }
+  } else if(t.answerFields && t.answerFields.length){
+    for(var i = 0; i < t.answerFields.length; i++){
+      var inp = document.getElementById('answer-input-' + i);
+      var mark = document.getElementById('field-mark-' + i);
+      if(inp){
+        inp.style.borderColor = 'var(--green)';
+        inp.style.boxShadow = '0 0 12px var(--green-glow)';
+      }
+      if(mark){ mark.textContent = '✓'; mark.style.color = 'var(--green)'; }
+    }
+  } else if (t.answer) {
+    var inp = document.getElementById('answer-input');
+    if(inp){
+      inp.style.borderColor = 'var(--green)';
+      inp.style.boxShadow = '0 0 12px var(--green-glow)';
+    }
+  }
+}
+
+function updateBonusUI(state, t){
+  var block = document.getElementById('bonus-block');
+  if(!block) return;
+  var mainDone = (state.status === 'solved' || state.status === 'assisted');
+  if(!mainDone){ block.classList.remove('show'); return; }
+  block.classList.add('show');
+  var allPrevCorrect = true;
+  for(var i = 0; i < t.bonus.length; i++){
+    var qEl   = document.getElementById('bonus-q-' + i);
+    var bq    = t.bonus[i];
+    var fbEl  = document.getElementById('bonus-fb-' + i);
+    var bs    = state.bonus[i];
+    if(allPrevCorrect){ qEl.classList.add('show'); }
+    else { qEl.classList.remove('show'); }
+
+    if(bs.status === 'correct'){
+      if(bq.choices){
+        var btns = document.querySelectorAll('.choice-btn[data-bonus="' + i + '"]');
+        for(var j = 0; j < btns.length; j++){
+          btns[j].disabled = true;
+          if(bq.choices[j].correct) btns[j].classList.add('correct');
+        }
+      } else {
+        var input = document.getElementById('bonus-input-' + i);
+        var btn   = document.getElementById('bonus-btn-' + i);
+        if(input) input.disabled = true;
+        if(btn){ btn.disabled = true; btn.style.opacity = .5; btn.style.cursor = 'default'; }
+      }
+      fbEl.className = 'feedback show ok'; fbEl.innerHTML = '✓ Верно!';
+      qEl.classList.add('correct');
+    } else {
+      allPrevCorrect = false;
+    }
+  }
+}
+
+function handleChoiceClick(idx){
+  var sec = findSection(window._currentSectionId);
+  var t = findTask(sec, window._currentTaskId);
+  if(!t || !t.choices) return;
+  var state = progress[t.id];
+  if(!state || state.status) return;
+
+  var choice = t.choices[idx];
+  var btn = document.querySelector('#main-choice-grid .choice-btn[data-idx="' + idx + '"]');
+  var fb = document.getElementById('feedback');
+  if(!btn) return;
+
+  if(choice.correct){
+    state.status = (state.attempts === 0) ? 'solved' : 'assisted';
+    saveProgress();
+    btn.classList.add('correct');
+    var allBtns = document.querySelectorAll('#main-choice-grid .choice-btn');
+    for(var i = 0; i < allBtns.length; i++){ allBtns[i].disabled = true; }
+    fb.className = 'feedback show ok';
+    fb.innerHTML = (state.attempts === 0)
+      ? '✓ Верно! Отличная работа.'
+      : '✓ Верно! Задача засчитана с подсказкой.';
+    revealFinalFormula();
+    updateBonusUI(state, t);
+  } else {
+    state.attempts += 1;
+    saveProgress();
+    btn.classList.add('wrong');
+    btn.disabled = true;
+    fb.className = 'feedback show bad';
+    fb.innerHTML = '✗ Неверно. Попробуйте другой вариант.';
+    if(state.attempts >= 1 && t.hints && t.hints[0]){
+      document.getElementById('hint-1-text').innerHTML = t.hints[0];
+      document.getElementById('hint-1').className = 'hint-block show';
+    }
+    if(state.attempts >= 2 && t.hints && t.hints[1]){
+      document.getElementById('hint-2-text').innerHTML = t.hints[1];
+      document.getElementById('hint-2').className = 'hint-block show';
+    }
+  }
+}
+
+function handleBonusChoiceClick(bonusIdx, choiceIdx){
+  var sec = findSection(window._currentSectionId);
+  var t = findTask(sec, window._currentTaskId);
+  if(!t || !t.bonus || !t.bonus[bonusIdx]) return;
+  var state = progress[t.id];
+  if(!state || !state.bonus || !state.bonus[bonusIdx]) return;
+  var bs = state.bonus[bonusIdx];
+  if(bs.status === 'correct') return;
+
+  var bq = t.bonus[bonusIdx];
+  if(!bq.choices) return;
+  var choice = bq.choices[choiceIdx];
+
+  var btn = document.querySelector('.choice-btn[data-bonus="' + bonusIdx + '"][data-idx="' + choiceIdx + '"]');
+  var fbEl = document.getElementById('bonus-fb-' + bonusIdx);
+  if(!btn) return;
+
+  if(choice.correct){
+    bs.status = 'correct';
+    saveProgress();
+    btn.classList.add('correct');
+    var allBtns = document.querySelectorAll('.choice-btn[data-bonus="' + bonusIdx + '"]');
+    for(var i = 0; i < allBtns.length; i++){ allBtns[i].disabled = true; }
+    fbEl.className = 'feedback show ok';
+    fbEl.innerHTML = '✓ Верно!';
+    document.getElementById('bonus-q-' + bonusIdx).classList.add('correct');
+    updateBonusUI(state, t);
+  } else {
+    bs.attempts += 1;
+    saveProgress();
+    btn.classList.add('wrong');
+    btn.disabled = true;
+    fbEl.className = 'feedback show bad';
+    fbEl.innerHTML = '✗ Неверно. Попробуйте другой вариант.';
+  }
+}
+
+function checkBonus(idx){
+  var sec = findSection(window._currentSectionId);
+  var t = findTask(sec, window._currentTaskId);
+  if(!t || !t.bonus || !t.bonus[idx]) return;
+  var bq = t.bonus[idx];
+  if(bq.choices) return;
+  var state = progress[t.id];
+  if(!state || !state.bonus || !state.bonus[idx]) return;
+  var bs = state.bonus[idx];
+  if(bs.status === 'correct') return;
+  var input = document.getElementById('bonus-input-' + idx);
+  var fbEl  = document.getElementById('bonus-fb-' + idx);
+  var val = input.value.trim();
+  if(val === '') return;
+  if(isCorrect(val, bq.answer)){
+    bs.status = 'correct'; saveProgress();
+    fbEl.className = 'feedback show ok'; fbEl.innerHTML = '✓ Верно!';
+    input.disabled = true;
+    var btn = document.getElementById('bonus-btn-' + idx);
+    btn.disabled = true; btn.style.opacity = .5; btn.style.cursor = 'default';
+    document.getElementById('bonus-q-' + idx).classList.add('correct');
+    updateBonusUI(state, t);
+    return;
+  }
+  bs.attempts += 1; saveProgress();
+  fbEl.className = 'feedback show bad';
+  fbEl.innerHTML = '✗ Неверно. Попробуйте ещё раз.';
+  input.value = ''; input.focus();
+}
+
+function handleCheck(){
+  var sec = findSection(window._currentSectionId);
+  var t = findTask(sec, window._currentTaskId);
+  if(!t) return;
+  if(t.choices) return;
+  var state = progress[t.id];
+  if(!state || state.status) return;
+  var fb = document.getElementById('feedback');
+
+  if(t.answerFields){
+    var anyNew = false;
+    var anyWrong = false;
+    var anyEmpty = false;
+    var allDone = true;
+
+    for(var i = 0; i < t.answerFields.length; i++){
+      if(state.fieldCorrect && state.fieldCorrect[i]) continue;
+
+      var inp = document.getElementById('answer-input-' + i);
+      var mark = document.getElementById('field-mark-' + i);
+      var v = inp.value.trim();
+
+      if(v === ''){ anyEmpty = true; allDone = false; continue; }
+
+      if(isCorrect(v, t.answerFields[i].answer)){
+        if(!state.fieldCorrect) state.fieldCorrect = [];
+        state.fieldCorrect[i] = true;
+        anyNew = true;
+        inp.disabled = true;
+        inp.style.borderColor = 'var(--green)';
+        inp.style.boxShadow = '0 0 12px var(--green-glow)';
+        if(mark) { mark.textContent = '✓'; mark.style.color = 'var(--green)'; }
+      } else {
+        anyWrong = true;
+        allDone = false;
+        inp.value = '';
+        if(mark) { mark.textContent = '✗'; mark.style.color = 'var(--red)'; }
+      }
+    }
+
+    for(var k = 0; k < t.answerFields.length; k++){
+      if(!state.fieldCorrect || !state.fieldCorrect[k]) { allDone = false; break; }
+    }
+
+    if(allDone){
+      state.status = (state.attempts === 0) ? 'solved' : 'assisted';
+      saveProgress();
+      fb.className = 'feedback show ok';
+      fb.innerHTML = (state.attempts === 0)
+        ? '✓ Верно! Отличная работа.'
+        : '✓ Верно! Задача засчитана с подсказкой.';
+      disableAllInputs();
+      revealFinalFormula();
+      updateBonusUI(state, t);
+      return;
+    }
+
+    if(anyWrong){
+      state.attempts += 1;
+      saveProgress();
+      fb.className = 'feedback show bad';
+      fb.innerHTML = anyNew ? '✓ Часть ответа верная. Остался ещё один — проверьте его.' : '✗ Неверно. Попробуйте ещё раз.';
+      if(state.attempts >= 1 && t.hints && t.hints[0]){
+        document.getElementById('hint-1-text').innerHTML = t.hints[0];
+        document.getElementById('hint-1').className = 'hint-block show';
+      }
+      if(state.attempts >= 2 && t.hints && t.hints[1]){
+        document.getElementById('hint-2-text').innerHTML = t.hints[1];
+        document.getElementById('hint-2').className = 'hint-block show';
+      }
+      for(var j = 0; j < t.answerFields.length; j++){
+        if(!state.fieldCorrect || !state.fieldCorrect[j]){
+          var f2 = document.getElementById('answer-input-' + j);
+          if(f2) f2.focus();
+          break;
+        }
+      }
+    } else if(anyNew && anyEmpty){
+      fb.className = 'feedback show bad';
+      fb.innerHTML = '✓ Один ответ верный. Заполните оставшееся поле.';
+      for(var n = 0; n < t.answerFields.length; n++){
+        if(!state.fieldCorrect || !state.fieldCorrect[n]){
+          var f3 = document.getElementById('answer-input-' + n);
+          if(f3) f3.focus();
+          break;
+        }
+      }
+    }
+  } else {
+    var input = document.getElementById('answer-input');
+    var val = input.value.trim();
+    if(val === '') return;
+
+    if(isCorrect(val, t.answer)){
+      state.status = (state.attempts === 0) ? 'solved' : 'assisted';
+      saveProgress();
+      fb.className = 'feedback show ok';
+      fb.innerHTML = (state.attempts === 0)
+        ? '✓ Верно! Отличная работа.'
+        : '✓ Верно! Задача засчитана с подсказкой.';
+      disableAllInputs();
+      input.style.borderColor = 'var(--green)';
+      input.style.boxShadow = '0 0 12px var(--green-glow)';
+      revealFinalFormula();
+      updateBonusUI(state, t);
+    } else {
+      state.attempts += 1;
+      saveProgress();
+      fb.className = 'feedback show bad';
+      fb.innerHTML = '✗ Неверно. Попробуйте ещё раз.';
+      if(state.attempts >= 1 && t.hints && t.hints[0]){
+        document.getElementById('hint-1-text').innerHTML = t.hints[0];
+        document.getElementById('hint-1').className = 'hint-block show';
+      }
+      if(state.attempts >= 2 && t.hints && t.hints[1]){
+        document.getElementById('hint-2-text').innerHTML = t.hints[1];
+        document.getElementById('hint-2').className = 'hint-block show';
+      }
+      input.value = '';
+      input.focus();
+    }
+  }
+}
+
+function goHome(){
+  document.getElementById('task-view').className = 'hidden';
+  document.getElementById('home-view').className = '';
+  renderHome();
+  window.scrollTo(0, 0);
+}
+
+renderHome();
+</script>
+</body>
+</html>
