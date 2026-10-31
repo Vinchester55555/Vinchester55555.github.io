@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Физика · Центр масс</title>
+<title>Физика · Абсолютно упругий удар</title>
 <style>
   :root{
     --bg-0:#070b14; --bg-1:#0d1524;
@@ -313,48 +313,6 @@
   .feedback.ok{background:var(--feedback-ok-bg); border:1.5px solid var(--green); color:var(--green);}
   .feedback.bad{background:var(--feedback-bad-bg); border:1.5px solid var(--red); color:var(--red);}
 
-  .choice-grid{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .choice-btn{
-    flex: 1 1 180px;
-    padding: 14px 18px;
-    background: var(--input-bg);
-    border: 1.5px solid var(--line);
-    border-radius: 10px;
-    color: var(--text-body);
-    font-family: inherit;
-    font-size: 15.5px;
-    cursor: pointer;
-    transition: .2s;
-    text-align: center;
-    line-height: 1.4;
-  }
-  .choice-btn:hover:not(:disabled){
-    border-color: var(--cyan);
-    color: var(--text-strong);
-    box-shadow: 0 0 18px var(--cyan-dim);
-    transform: translateY(-1px);
-  }
-  .choice-btn.correct{
-    border-color: var(--green);
-    background: var(--feedback-ok-bg);
-    color: var(--green);
-    box-shadow: 0 0 12px var(--green-glow);
-    font-weight: 600;
-  }
-  .choice-btn.wrong{
-    border-color: var(--red);
-    background: var(--feedback-bad-bg);
-    color: var(--red);
-    text-decoration: line-through;
-    opacity: .7;
-  }
-  .choice-btn:disabled{ cursor: default; }
-  .choice-btn:disabled:not(.correct):not(.wrong){ opacity: .45; }
-
   .final-formula{
     margin-top:22px; padding:22px 26px 20px;
     border:1.5px solid var(--ff-border);
@@ -419,6 +377,30 @@
   }
   .hint-block.show{display:block;}
   .hint-label{font-size:12px; letter-spacing:2px; text-transform:uppercase; color:var(--yellow); display:block; margin-bottom:8px; opacity:.85;}
+  
+  /* === Выбор варианта === */
+  .choice-grid{display:flex; flex-direction:column; gap:10px; margin-top:6px;}
+  .choice-btn{
+    text-align:left; padding:12px 18px;
+    border-radius:10px; cursor:pointer;
+    font-family:inherit; font-size:15.5px;
+    color:var(--text-body);
+    background:linear-gradient(160deg,var(--btn-grad-a),var(--btn-grad-b));
+    border:1.5px solid var(--line);
+    transition:.18s ease;
+  }
+  .choice-btn:hover:not(:disabled){border-color:var(--cyan); box-shadow:0 0 14px var(--cyan-dim); color:var(--text-strong);}
+  .choice-btn:disabled{cursor:default; opacity:.7;}
+  .choice-btn.correct{
+    border-color:var(--green); color:var(--green);
+    background:var(--feedback-ok-bg);
+    box-shadow:0 0 14px var(--green-glow);
+  }
+  .choice-btn.wrong{
+    border-color:var(--red); color:var(--red);
+    background:var(--feedback-bad-bg);
+  }
+
   @media(max-width:600px){
     .wrap{padding:80px 14px 60px;}
     .task-card{padding:24px 20px;}
@@ -428,7 +410,6 @@
     .af-label{min-width:0;}
     .theme-toggle{top:12px; right:12px; width:40px; height:40px;}
     .final-formula-content{font-size:19px;}
-    .choice-btn{flex: 1 1 100%;}
   }
 </style>
 </head>
@@ -455,11 +436,11 @@
   </svg>
 </button>
 
-<div class="floaty" style="top:12%;left:4%;">m</div>
-<div class="floaty" style="top:70%;left:88%;font-size:100px;animation-delay:-6s;">r</div>
-<div class="floaty" style="top:38%;left:92%;animation-delay:-11s;">Σ</div>
-<div class="floaty" style="top:80%;left:8%;font-size:70px;animation-delay:-3s;">CM</div>
-<div class="floaty" style="top:20%;left:78%;font-size:60px;animation-delay:-14s;">x</div>
+<div class="floaty" style="top:12%;left:4%;">p</div>
+<div class="floaty" style="top:70%;left:88%;font-size:100px;animation-delay:-6s;">E</div>
+<div class="floaty" style="top:38%;left:92%;animation-delay:-11s;">v</div>
+<div class="floaty" style="top:80%;left:8%;font-size:70px;animation-delay:-3s;">m</div>
+<div class="floaty" style="top:20%;left:78%;font-size:60px;animation-delay:-14s;">Δ</div>
 
 <div class="wrap">
   <section id="home-view"><div id="sections-container"></div></section>
@@ -482,343 +463,200 @@ var F_M   = 'м';
 
 var sections = [
   {
-    id: 'center-of-mass',
-    title: 'Центр масс',
-    icon: 'r<sub>c</sub>',
+    id: 'elastic-collisions',
+    title: 'Абсолютно упругий удар',
+    icon: 'p',
     tasks: [
       {
         id: 1,
-        title: 'Составной стержень (МФТИ, 1984)',
-        unit: ' (отношение длин)',
+        title: 'Два бруска на столе (МФТИ, 1993)',
+        unit: ' (в метрах)',
         body:
-          '<p>Составной стержень представляет собой два соосных цилиндра, ' +
-          'прижатых друг к другу торцами. Оказалось, что центр масс такого ' +
-          'стержня находится в стыковочном сечении. Цилиндры изготовлены из ' +
-          'одинакового материала, но площадь сечения одного цилиндра в три ' +
-          'раза больше площади сечения другого.</p>' +
-          '<p>Определить отношение длин цилиндров. Ответ дайте числом ' +
-          '(большая длина к меньшей).</p>',
+          '<p>Брусок, двигавшийся по горизонтальной поверхности стола со скоростью ' +
+          '<span class="formula">v<sub>0</sub> = 6 ' + F_MS + '</span>, ' +
+          'сталкивается с неподвижным бруском вдвое большей массы. ' +
+          'Удар упругий, центральный. Коэффициенты трения брусков о стол ' +
+          'одинаковы и равны <span class="formula">\u03BC = 0,3</span>. ' +
+          'Ускорение свободного падения <span class="formula">g = 10 ' + F_MSS + '</span>.</p>' +
+          '<p>На какое расстояние разъедутся бруски после столкновения? ' +
+          'Ответ выразите в метрах.</p>',
         answer: [
-          { value: 1.73, tol: 0.02 },
-          '1.73', '1,73', 'sqrt(3)', '√3'
+          { value: 3.33, tol: 0.02 },
+          '3.33', '3,33', '10/3', '3.3', '3,3'
         ],
         finalFormula:
-          '<span class="ff-line">' +
-            '<span class="frac"><span class="fnum">L<sub>1</sub></span><span class="fden">L<sub>2</sub></span></span>' +
-            ' = √(S<sub>2</sub> / S<sub>1</sub>) = √3 ≈ 1,73' +
-          '</span>',
+          '<span class="ff-line">S = S<sub>1</sub> + S<sub>2</sub> = ' +
+            '<span class="frac"><span class="fnum">5v<sub>0</sub><sup>2</sup></span><span class="fden">18\u03BCg</span></span>' +
+            ' = 3,33 м</span>',
         hints: [
-          'Масса каждого цилиндра пропорциональна его объему, то есть произведению площади сечения на длину.',
-          'Поскольку центр масс находится на стыке, моменты масс левой и правой частей относительно стыка должны быть равны.'
+          'Для упругого центрального удара запишите закон сохранения импульса и закон сохранения энергии. Найдите скорости обоих брусков сразу после столкновения.',
+          'После удара единственная сила, совершающая работу, — сила трения. Свяжите кинетическую энергию бруска с его тормозным путём, используя теорему о кинетической энергии.'
         ],
         bonus: [
           {
-            q: 'Чему равно отношение масс большего и меньшего цилиндров?',
-            answer: [{ value: 1.73, tol: 0.02 }, '1.73', '1,73', 'sqrt(3)', '√3']
+            q: 'Во сколько раз время торможения второго бруска больше времени торможения первого?',
+            answer: [{ value: 2, tol: 0.01 }, '2', '2.0', '2,0']
           },
           {
-            q: 'Если бы площади отличались в 4 раза, каким было бы отношение длин?',
-            answer: [{ value: 2, tol: 0.02 }, '2', '2.0', '2,0']
+            q: 'Какое суммарное количество теплоты выделится в системе из-за трения к моменту полной остановки обоих брусков? (Массу первого бруска принять равной m = 1 кг, v₀ = 6 м/с). Ответ дайте в Дж.',
+            answer: [{ value: 18, tol: 0.02 }, '18', '18.0', '18,0']
           }
         ]
       },
       {
         id: 2,
-        title: 'Три тела на прямой (Задача 1)',
-        unit: ' (в долях \u2113)',
+        title: 'Три шара (Росатом, 2013)',
         body:
-          '<p>Три небольших тела массами <span class="formula">m</span>, ' +
-          '<span class="formula">3m</span> и <span class="formula">4m</span> ' +
-          'расположены последовательно на одной прямой в точках ' +
-          '<span class="formula">A<sub>1</sub></span>, ' +
-          '<span class="formula">A<sub>2</sub></span> и ' +
-          '<span class="formula">A<sub>3</sub></span>. Известно, что ' +
-          '<span class="formula">A<sub>1</sub>A<sub>2</sub> = \u2113</span> и ' +
-          '<span class="formula">A<sub>2</sub>A<sub>3</sub> = 2\u2113</span>.</p>' +
-          '<p>1) Найдите положение центра масс этой системы (исходя из ' +
-          'определения). Ответ дайте в долях \u2113 от точки A<sub>1</sub>.</p>' +
-          '<p>2) Убедитесь, что ответ получается тот же, если искать его ' +
-          'как центр масс тела <span class="formula">m</span> и тела ' +
-          '<span class="formula">7m</span>, расположенного в центре масс ' +
-          'системы тел <span class="formula">3m</span> и ' +
-          '<span class="formula">4m</span>.</p>',
+          '<p>Имеются три шара с массами <span class="formula">2 кг</span>, <span class="formula">\u03BC</span> и <span class="formula">4 кг</span>. ' +
+          'Шар массой <span class="formula">4 кг</span> движется, остальные шары покоятся. ' +
+          'Происходят центральные упругие столкновения шаров. При каком значении массы <span class="formula">\u03BC</span> (в кг) ' +
+          'шар массой <span class="formula">2 кг</span> будет иметь после столкновения с шаром <span class="formula">\u03BC</span> максимальную скорость?</p>' +
+          '<div class="task-figure">' +
+            '<svg viewBox="0 0 300 100" style="max-width:300px;">' +
+              '<line x1="20" y1="80" x2="280" y2="80" stroke="#7c93b3" stroke-width="2" />' +
+              '<circle cx="60" cy="60" r="20" fill="none" stroke="#8fe9ff" stroke-width="2"/>' +
+              '<text x="60" y="66" fill="#dbe7f5" font-family="Cambria Math, serif" font-size="16" text-anchor="middle" font-style="italic">2 кг</text>' +
+              '<circle cx="130" cy="60" r="20" fill="none" stroke="#8fe9ff" stroke-width="2"/>' +
+              '<text x="130" y="66" fill="#dbe7f5" font-family="Cambria Math, serif" font-size="16" text-anchor="middle" font-style="italic">\u03BC</text>' +
+              '<circle cx="220" cy="60" r="20" fill="none" stroke="#8fe9ff" stroke-width="2"/>' +
+              '<text x="220" y="66" fill="#dbe7f5" font-family="Cambria Math, serif" font-size="16" text-anchor="middle" font-style="italic">4 кг</text>' +
+              '<line x1="270" y1="20" x2="200" y2="20" stroke="#8fe9ff" stroke-width="2" />' +
+              '<polygon points="200,14 190,20 200,26" fill="#8fe9ff" />' +
+            '</svg>' +
+          '</div>' +
+          '<p>Ответ дайте в килограммах с точностью до сотых.</p>',
         answer: [
-          { value: 1.875, tol: 0.01 },
-          '1.875', '1,875', '15/8'
+          { value: 2.828, tol: 0.02 },
+          '2.83', '2,83', '2.8', '2,8', '2.828', '2,828', '2.8284'
         ],
         finalFormula:
-          '<span class="ff-line">x<sub>c</sub> = ' +
-            '<span class="frac"><span class="fnum">15</span><span class="fden">8</span></span>' +
-            '\u2113 = 1,875\u2113' +
-          '</span>',
+          '<span class="ff-line">\u03BC = m\u221A2 = 2\u221A2 \u2248 2,83 кг</span>',
         hints: [
-          'Используйте формулу центра масс для системы материальных точек.',
-          'Для проверки представьте две правые массы как единое тело с массой 7m, находящееся в их центре масс.'
+          'Сначала рассмотрите столкновение шара <span class="formula">4 кг</span> с шаром <span class="formula">\u03BC</span>. Затем — столкновение шара <span class="formula">\u03BC</span> с шаром <span class="formula">2 кг</span>.',
+          'Запишите скорость шара <span class="formula">2 кг</span> после двух ударов как функцию от <span class="formula">\u03BC</span>. Исследуйте эту функцию на максимум. Оптимальное значение <span class="formula">\u03BC = 2\u221A2 \u2248 2,83 кг</span>.'
         ],
         bonus: [
           {
-            q: 'Чему равно расстояние от центра масс до точки A2 (в долях \u2113)?',
-            answer: [{ value: 0.875, tol: 0.02 }, '0.875', '0,875', '7/8']
+            q: 'С какой скоростью (в долях от начальной скорости v₀) движется центр масс всей системы, состоящей из трёх шаров, во время всех столкновений, если масса промежуточного шара μ = 2 кг? Ответ дайте десятичной дробью.',
+            answer: [{ value: 0.5, tol: 0.02 }, '0.5', '0,5', '1/2']
           },
           {
-            q: 'Если массу m в точке A1 увеличить вдвое, как изменится положение центра масс? (Укажите новую координату в долях \u2113).',
-            answer: [{ value: 1.667, tol: 0.02 }, '1.667', '1,667', '5/3']
+            q: 'При каком значении массы промежуточного шара μ (в кг) он сам полностью остановится после столкновения с шаром массой 2 кг?',
+            answer: [{ value: 2, tol: 0.01 }, '2', '2.0', '2,0']
           }
         ]
       },
       {
         id: 3,
-        title: 'Шар с полостью (Физтех, 2012)',
-        unit: ' (в см)',
+        title: 'Два шара навстречу (Всеросс, 2026)',
         body:
-          '<p>Внутри однородного шара радиусом ' +
-          '<span class="formula">R = 39 см</span> находится сферическая ' +
-          'полость радиусом <span class="formula">r = 13 см</span>, ' +
-          'касающаяся поверхности шара.</p>' +
-          '<p>На каком расстоянии от центра шара находится центр масс ' +
-          'шара с полостью? Ответ выразите в см.</p>',
-        answer: [
-          { value: 1, tol: 0.02 },
-          '1', '1.0', '1,0'
-        ],
-        finalFormula:
-          '<span class="ff-line">x = ' +
-            '<span class="frac"><span class="fnum">R - r</span><span class="fden">(R/r)³ - 1</span></span>' +
-            ' = 1 см</span>',
-        hints: [
-          'Используйте метод отрицательных масс: представьте, что полость заполнена веществом с отрицательной плотностью.',
-          'Центр масс сплошного шара находится в его геометрическом центре.'
-        ],
-        bonus: [
+          '<p>Гладкий шар массой <span class="formula">m<sub>1</sub></span> налетает на гладкий шар массой <span class="formula">m<sub>2</sub></span> ' +
+          'такого же диаметра, движущийся с той же скоростью <span class="formula">v<sub>0</sub> = 8,7</span> ' + F_MS + ' в противоположном направлении так, как показано на рисунке. ' +
+          'В результате упругого соударения первый шар отскакивает в направлении, перпендикулярном первоначальному направлению его движения.</p>' +
+          '<div class="task-figure">' +
+            '<svg viewBox="0 0 300 180" style="max-width:350px;">' +
+              '<!-- m1 -->' +
+              '<circle cx="80" cy="70" r="30" fill="none" stroke="#8fe9ff" stroke-width="2"/>' +
+              '<text x="80" y="55" fill="#dbe7f5" font-family="Cambria Math, serif" font-size="18" text-anchor="middle" font-style="italic">m\u2081</text>' +
+              '<!-- m2 -->' +
+              '<circle cx="220" cy="100" r="30" fill="none" stroke="#8fe9ff" stroke-width="2"/>' +
+              '<text x="220" y="85" fill="#dbe7f5" font-family="Cambria Math, serif" font-size="18" text-anchor="middle" font-style="italic">m\u2082</text>' +
+              '<!-- paths -->' +
+              '<line x1="110" y1="70" x2="150" y2="70" stroke="#7c93b3" stroke-width="1.5" stroke-dasharray="4,4" />' +
+              '<line x1="190" y1="100" x2="150" y2="100" stroke="#7c93b3" stroke-width="1.5" stroke-dasharray="4,4" />' +
+              '<!-- v1 arrow -->' +
+              '<line x1="80" y1="20" x2="140" y2="20" stroke="#8fe9ff" stroke-width="2" />' +
+              '<polygon points="140,14 150,20 140,26" fill="#8fe9ff" />' +
+              '<text x="110" y="12" fill="#dbe7f5" font-family="Cambria Math, serif" font-size="16" text-anchor="middle" font-style="italic">v\u2080</text>' +
+              '<!-- v2 arrow -->' +
+              '<line x1="220" y1="150" x2="160" y2="150" stroke="#8fe9ff" stroke-width="2" />' +
+              '<polygon points="160,144 150,150 160,156" fill="#8fe9ff" />' +
+              '<text x="190" y="166" fill="#dbe7f5" font-family="Cambria Math, serif" font-size="16" text-anchor="middle" font-style="italic">v\u2080</text>' +
+              '<!-- center dots -->' +
+              '<circle cx="80" cy="70" r="3" fill="#8fe9ff" />' +
+              '<circle cx="220" cy="100" r="3" fill="#8fe9ff" />' +
+            '</svg>' +
+          '</div>' +
+          '<p>Найдите скорости шаров после соударения, отношение их масс и угол, на который повернётся вектор скорости второго шара.</p>',
+        answerFields: [
           {
-            q: 'Чему равна масса вырезанной части по отношению к массе целого шара? (Ответ дайте десятичной дробью).',
-            answer: [{ value: 0.037, tol: 0.01 }, '0.037', '0,037', '1/27']
+            label: 'v<sub>1</sub>, ' + F_MS,
+            answer: [{ value: 5.0, tol: 0.01 }, '5', '5.0', '5,0']
           },
           {
-            q: 'Как изменится ответ, если полость будет иметь радиус R/2 (в см)?',
-            answer: [{ value: 2.79, tol: 0.02 }, '2.79', '2,79', '39/14']
+            label: 'v<sub>2</sub>, ' + F_MS,
+            answer: [{ value: 13.3, tol: 0.01 }, '13.3', '13,3']
+          },
+          {
+            label: 'm<sub>1</sub>/m<sub>2</sub>',
+            answer: [{ value: 2.0, tol: 0.01 }, '2', '2.0', '2,0', '2.4', '2,4']
+          },
+          {
+            label: '\u03B1, \u00B0',
+            answer: [{ value: 131, tol: 0.5 }, '131']
           }
+        ],
+        finalFormula:
+          '<span class="ff-line">v<sub>1</sub> = ' +
+            '<span class="frac"><span class="fnum">v<sub>0</sub></span><span class="fden">\u221A3</span></span>' +
+            ' \u2248 5,0 ' + F_MS + '</span>' +
+          '<span class="ff-line">v<sub>2</sub> \u2248 13,3 ' + F_MS + ', \u00A0 m<sub>1</sub>/m<sub>2</sub> = 2, \u00A0 \u03B1 \u2248 131\u00B0</span>',
+        hints: [
+          'Запишите законы сохранения импульса и энергии. Учтите, что при ударе гладких шаров импульс передается только вдоль линии, соединяющей их центры в момент удара.',
+          'Из рисунка следует, что прицельный параметр <span class="formula">b = R</span>. Это означает, что линия центров в момент удара составляет угол <span class="formula">30\u00B0</span> с первоначальным направлением. Используйте это, чтобы найти связь между скоростями и массами.'
         ]
       },
       {
         id: 4,
-        title: 'Треугольная рамка (Всеросс., 2014)',
-        unit: ' (в долях L)',
+        title: 'Две шайбы у стенки (Всеросс, 2018)',
+        unit: ' (в м/с)',
         body:
-          '<p>Две стороны проволочной рамки, имеющей форму равностороннего ' +
-          'треугольника, сделаны из алюминиевой проволоки, а третья — из ' +
-          'медной вдвое большего диаметра. Плотность меди считайте в три ' +
-          'раза большей плотности алюминия.</p>' +
-          '<p>Определите, на каком расстоянии от середины медной проволоки ' +
-          'находится центр тяжести системы, если сторона треугольника ' +
-          'равна <span class="formula">L</span>. Ответ дайте в виде ' +
-          'коэффициента перед L.</p>',
+          '<p>Две шайбы находятся на гладкой горизонтальной поверхности. Малая шайба радиуса <span class="formula">r</span> ' +
+          'движется со скоростью <span class="formula">v = 10</span> ' + F_MS + ' вдоль вертикальной стенки при малом зазоре с ней. ' +
+          'Большая шайба радиуса <span class="formula">R = 7r</span> касается стенки. ' +
+          'Какую скорость <span class="formula">u</span> приобретёт большая шайба после всех столкновений, если массы шайб одинаковы? ' +
+          'Трения в системе нет, столкновения шайб друг с другом и со стенкой абсолютно упругие.</p>' +
+          '<div class="task-figure">' +
+            '<svg viewBox="0 0 400 300" style="max-width:400px;">' +
+              '<!-- Wall -->' +
+              '<line x1="40" y1="20" x2="40" y2="280" stroke="#7c93b3" stroke-width="4" />' +
+              '<text x="360" y="30" fill="#dbe7f5" font-family="Segoe UI, sans-serif" font-size="16" text-anchor="end" font-weight="bold">Вид сверху</text>' +
+              '<!-- Large puck -->' +
+              '<circle cx="110" cy="220" r="70" fill="none" stroke="#8fe9ff" stroke-width="3"/>' +
+              '<circle cx="110" cy="220" r="3" fill="#8fe9ff" />' +
+              '<text x="110" y="230" fill="#dbe7f5" font-family="Cambria Math, serif" font-size="24" text-anchor="middle" font-style="italic">R</text>' +
+              '<!-- Small puck -->' +
+              '<circle cx="65" cy="80" r="12" fill="none" stroke="#8fe9ff" stroke-width="3"/>' +
+              '<circle cx="65" cy="80" r="2" fill="#8fe9ff" />' +
+              '<text x="82" y="85" fill="#dbe7f5" font-family="Cambria Math, serif" font-size="20" text-anchor="start" font-style="italic">r</text>' +
+              '<!-- Velocity arrow for small puck -->' +
+              '<line x1="115" y1="40" x2="115" y2="110" stroke="#8fe9ff" stroke-width="3" />' +
+              '<polygon points="109,105 115,115 121,105" fill="#8fe9ff" />' +
+              '<text x="130" y="85" fill="#dbe7f5" font-family="Cambria Math, serif" font-size="22" text-anchor="start" font-style="italic">v</text>' +
+            '</svg>' +
+          '</div>' +
+          '<p>Ответ дайте в м/с с точностью до десятых (можно вводить как число, так и выражение, например <span class="formula">45*sqrt(7)/16</span>).</p>',
         answer: [
-          { value: 0.062, tol: 0.01 },
-          '0.062', '0,062', 'sqrt(3)/28', '√3/28'
+          { value: 7.44, tol: 0.02 },
+          '7.44', '7,44', '7.4', '7,4', '45*sqrt(7)/16', '9*sqrt(7)/32*10'
         ],
         finalFormula:
-          '<span class="ff-line">x = ' +
-            '<span class="frac"><span class="fnum">√3</span><span class="fden">28</span></span>' +
-            '·L ≈ 0,062·L</span>',
+          '<span class="ff-line">u = ' +
+            '<span class="frac"><span class="fnum">9\u221A7</span><span class="fden">32</span></span>' +
+            ' v \u2248 7,44 ' + F_MS + '</span>' +
+          '<span class="ff-line" style="font-size:16px; color:var(--muted);">(после двух столкновений шайбы разлетаются)</span>',
         hints: [
-          'Найдите массы сторон, учитывая, что масса пропорциональна плотности, площади сечения и длине.',
-          'Медь имеет в 2 раза больший диаметр (и в 4 раза большую площадь) и в 3 раза большую плотность, значит, она в 12 раз тяжелее алюминиевой стороны.'
+          'Рассмотрите первое столкновение. Найдите угол, который составляет линия центров шайб с направлением движения малой шайбы. Используйте законы сохранения импульса и энергии.',
+          'После первого удара шайбы разлетаются. Малая шайба упруго отражается от стенки и догоняет большую. Проанализируйте последовательность столкновений и найдите конечную скорость большой шайбы.'
         ],
         bonus: [
           {
-            q: 'Каково отношение массы медной стороны к массе одной алюминиевой?',
-            answer: [{ value: 12, tol: 0.02 }, '12', '12.0', '12,0']
+            q: 'Под каким углом к вертикальной стенке будет двигаться большая шайба после всех столкновений? (Ответ дайте в градусах, округлив до десятых).',
+            answer: [{ value: 48.6, tol: 0.02 }, '48.6', '48,6']
           },
           {
-            q: 'Где находился бы центр масс, если бы все стороны были из алюминия? (Ответ дайте в виде числа, обозначающего расстояние от середины стороны в долях высоты треугольника, где высота = 1).',
-            answer: [{ value: 0.333, tol: 0.02 }, '0.333', '0,333', '1/3']
-          }
-        ]
-      },
-      {
-        id: 5,
-        title: 'Стержень на гладкой поверхности (Задача 1)',
-        unit: ' (выберите вариант)',
-        choices: [
-          { text: 'Вертикальная прямая', correct: true },
-          { text: 'Парабола', correct: false },
-          { text: 'Горизонтальная прямая', correct: false },
-          { text: 'Окружность', correct: false }
-        ],
-        body:
-          '<p>Однородный стержень поставлен вертикально на гладкую ' +
-          'горизонтальную поверхность и начинает движение из состояния покоя.</p>' +
-          '<p>По какой траектории будет двигаться центр масс стержня? ' +
-          'Выберите правильный вариант.</p>',
-        finalFormula:
-          '<span class="ff-line">x<sub>c</sub> = const, \text{траектория — вертикальная прямая}</span>',
-        hints: [
-          'В горизонтальном направлении на стержень не действуют никакие внешние силы.',
-          'Как движется центр масс системы, если сумма внешних сил равна нулю?'
-        ],
-        bonus: [
-          {
-            q: 'Сохраняется ли горизонтальная проекция импульса системы?',
-            choices: [
-              { text: 'Да', correct: true },
-              { text: 'Нет', correct: false }
-            ]
-          },
-          {
-            q: 'Изменится ли ответ, если поверхность будет не гладкой, а с трением?',
-            choices: [
-              { text: 'Изменится', correct: true },
-              { text: 'Не изменится', correct: false }
-            ]
-          }
-        ]
-      },
-      {
-        id: 6,
-        title: 'Двойная звезда (Задача 2)',
-        unit: ' (в а.е.)',
-        body:
-          '<p>Двойная звезда состоит из двух звёзд-компонентов массами ' +
-          '<span class="formula">m<sub>1</sub></span> и ' +
-          '<span class="formula">m<sub>2</sub></span>, расстояние между ' +
-          'которыми постоянно и равно <span class="formula">L</span>. ' +
-          'Найдите период вращения двойной звезды.</p>' +
-          '<p>Введите численный ответ для случая: ' +
-          '<span class="formula">m<sub>1</sub> = 2·10<sup>30</sup> кг</span>, ' +
-          '<span class="formula">m<sub>2</sub> = 3·10<sup>30</sup> кг</span>, ' +
-          '<span class="formula">L = 10 а.е.</span> ' +
-          'Ответ дайте в а.е. (расстояние от первой звезды до центра масс).</p>',
-        answer: [
-          { value: 6, tol: 0.02 },
-          '6', '6.0', '6,0'
-        ],
-        finalFormula:
-          '<span class="ff-line">r<sub>1</sub> = ' +
-            '<span class="frac"><span class="fnum">m<sub>2</sub></span><span class="fden">m<sub>1</sub>+m<sub>2</sub></span></span>' +
-            '·L = ' +
-            '<span class="frac"><span class="fnum">3</span><span class="fden">5</span></span>' +
-            '·10 = 6 \text{ а.е.}</span>',
-        hints: [
-          'Центр масс двойной звезды находится в точке, вокруг которой обе звезды обращаются с одинаковым периодом.',
-          'Используйте определение центра масс для двух тел.'
-        ],
-        bonus: [
-          {
-            q: 'Чему равно отношение скоростей звезд v1/v2?',
-            answer: [{ value: 1.5, tol: 0.02 }, '1.5', '1,5', '3/2']
-          },
-          {
-            q: 'Во сколько раз изменится период обращения, если расстояние L увеличить вдвое? (Ответ дайте числом, во сколько раз, с точностью до сотых).',
-            answer: [{ value: 2.83, tol: 0.02 }, '2.83', '2,83', '2*sqrt(2)']
-          }
-        ]
-      },
-      {
-        id: 7,
-        title: 'Доска на льду (Курчатов, 2014)',
-        unit: ' (в см)',
-        body:
-          '<p>На гладком льду лежит однородная доска длиной ' +
-          '<span class="formula">l = 2 м</span>. К одному из концов доски ' +
-          'привязали верёвку и стали медленно тянуть её вверх. Когда угол ' +
-          'между доской и поверхностью льда стал равен ' +
-          '<span class="formula">60°</span>, вертикально натянутая верёвка ' +
-          'оборвалась.</p>' +
-          '<p>На какое расстояние сместится при падении доски её нижний ' +
-          'конец? Ответ дайте в см.</p>',
-        answer: [
-          { value: 50, tol: 0.02 },
-          '50', '50.0', '50,0'
-        ],
-        finalFormula:
-          '<span class="ff-line">\Delta x = ' +
-            '<span class="frac"><span class="fnum">L</span><span class="fden">2</span></span>' +
-            ' (1 - \cos 60^\circ) = ' +
-            '<span class="frac"><span class="fnum">L</span><span class="fden">4</span></span>' +
-            ' = 50 см</span>',
-        hints: [
-          'В горизонтальном направлении на доску не действуют внешние силы, поэтому горизонтальная координата центра масс сохраняется.',
-          'Найдите, где находится центр масс доски в начальный момент и в момент отрыва.'
-        ],
-        bonus: [
-          {
-            q: 'На какое расстояние сместится верхний конец доски к моменту удара о лёд? (в см)',
-            answer: [{ value: 50, tol: 0.02 }, '50', '50.0', '50,0']
-          },
-          {
-            q: 'Что произойдет, если поверхность будет с трением? (Ответьте "смещение будет меньше", "смещение будет больше" или "не изменится")',
-            answer: ['смещение будет меньше']
-          }
-        ]
-      },
-      {
-        id: 8,
-        title: 'Прыжок человека (Всеросс., 1995)',
-        unit: ' (в Н)',
-        body:
-          '<p>Сидевший на корточках человек резко выпрямляется и, оттолкнувшись ' +
-          'от пола, подпрыгивает так, что его центр масс поднимается на ' +
-          'высоту <span class="formula">h</span>, равную ' +
-          '<span class="formula">3/4</span> его роста ' +
-          '<span class="formula">l</span> (высота отсчитывается от пола).</p>' +
-          '<p>Найдите среднюю силу, с которой человек действует на пол ' +
-          'во время отталкивания. Центр масс человека, когда он стоит ' +
-          'выпрямившись, находится на высоте <span class="formula">l/2</span> ' +
-          'от пола. Перед прыжком центр масс человека находился на высоте ' +
-          '<span class="formula">l/4</span> от пола. Масса человека ' +
-          '<span class="formula">m = 75 кг</span>. Ускорение свободного ' +
-          'падения <span class="formula">g = 10 ' + F_MSS + '</span>.</p>',
-        answer: [
-          { value: 1500, tol: 0.02 },
-          '1500', '1500.0', '1500,0'
-        ],
-        finalFormula:
-          '<span class="ff-line">N = 2mg = 2 · 75 · 10 = 1500 \text{ Н}</span>',
-        hints: [
-          'Работа мышц идет на изменение механической энергии центра масс человека.',
-          'Смещение центра масс во время отталкивания равно l/2 - l/4 = l/4, а полная высота подъема — h - l/4 = l/2.'
-        ],
-        bonus: [
-          {
-            q: 'Чему равна средняя сила, если человек прыгает на Луне (g = 1.6 м/с²)? Ответ дайте в Ньютонах.',
-            answer: [{ value: 240, tol: 0.02 }, '240', '240.0', '240,0']
-          },
-          {
-            q: 'Какую работу совершает человек при прыжке, если его рост l = 2 м? Ответ дайте в Джоулях (g = 10).',
-            answer: [{ value: 750, tol: 0.02 }, '750', '750.0', '750,0']
-          }
-        ]
-      },
-      {
-        id: 9,
-        title: 'Разрыв снаряда (Задача 5)',
-        unit: ' (в долях L)',
-        body:
-          '<p>Дальность полёта снаряда, вылетающего из закреплённой пушки ' +
-          'под углом к горизонту, равна <span class="formula">L</span>. ' +
-          'В верхней точке траектории снаряд разорвался на два осколка ' +
-          'равной массы, один из которых попал в пушку.</p>' +
-          '<p>На каком расстоянии от пушки приземлился второй осколок? ' +
-          'Ответ дайте в долях L.</p>',
-        answer: [
-          { value: 2, tol: 0.02 },
-          '2', '2.0', '2,0'
-        ],
-        finalFormula:
-          '<span class="ff-line">x = 2L</span>',
-        hints: [
-          'Центр масс снаряда до взрыва и после него движется одинаково (по параболе).',
-          'В момент взрыва суммарный импульс осколков равен импульсу снаряда до взрыва.'
-        ],
-        bonus: [
-          {
-            q: 'Куда бы упал снаряд, если бы не взорвался? (Ответ дайте в долях L).',
-            answer: [{ value: 1, tol: 0.02 }, '1', '1.0', '1,0']
-          },
-          {
-            q: 'Во сколько раз скорость второго осколка в момент взрыва больше скорости снаряда до взрыва?',
-            answer: [{ value: 2, tol: 0.02 }, '2', '2.0', '2,0']
+            q: 'Чему равна скорость большой шайбы непосредственно после ПЕРВОГО соударения с малой шайбой? Ответ дайте в м/с, округлив до десятых.',
+            answer: [{ value: 6.6, tol: 0.02 }, '6.6', '6,6', '6.61', '6,61', '10*sqrt(7)/4', '2.5*sqrt(7)']
           }
         ]
       }
@@ -826,7 +664,7 @@ var sections = [
   }
 ];
 
-var STORAGE_KEY = 'phys-olymp-com-v1';
+var STORAGE_KEY = 'phys-olymp-elastic-v1';
 var progress = {};
 try{
   var raw = localStorage.getItem(STORAGE_KEY);
@@ -889,14 +727,37 @@ function normalize(s){
   s = s.replace(/\s+/g, '');
   return s;
 }
+
 function parseNumeric(s){
   if(s === null || s === undefined) return null;
-  var t = String(s).trim().replace(/,/g, '.').replace(/[^\d.eE+\-]/g, '');
+  var t = String(s).trim().toLowerCase().replace(/,/g, '.');
+  
+  if (t.includes('/') || t.includes('*')) {
+    try {
+      t = t.replace(/sqrt/g, 'Math.sqrt').replace(/√/g, 'Math.sqrt');
+      if (/^[0-9+\-*/().Mathsqrt]+$/.test(t)) {
+        var val = new Function('return ' + t)();
+        if (typeof val === 'number' && isFinite(val)) return val;
+      }
+    } catch(e) {}
+  }
+
+  t = t.replace(/sqrt\(([^)]+)\)/g, function(match, p1){
+    var num = parseFloat(p1);
+    return isNaN(num) ? match : Math.sqrt(num);
+  });
+  t = t.replace(/√([0-9.]+)/g, function(match, p1){
+    var num = parseFloat(p1);
+    return isNaN(num) ? match : Math.sqrt(num);
+  });
+  
+  t = t.replace(/[^\d.eE+\-]/g, '');
   if(t === '') return null;
   var n = parseFloat(t);
   if(isNaN(n) || !isFinite(n)) return null;
   return n;
 }
+
 function isCorrect(userVal, answerField){
   var answers = Array.isArray(answerField) ? answerField : [answerField];
   var nv = normalize(userVal);
